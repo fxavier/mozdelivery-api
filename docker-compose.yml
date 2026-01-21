@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgis/postgis:15-3.3
+    container_name: mozdelivery-postgres
+    environment:
+      POSTGRES_DB: mozdelivery_db
+      POSTGRES_USER: mozdelivery_user
+      POSTGRES_PASSWORD: mozdelivery_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - mozdelivery_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mozdelivery_user -d mozdelivery_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+  redis:
+    image: redis:7.2-alpine
+    container_name: mozdelivery-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - mozdelivery_redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  mozdelivery_postgres_data:
+  mozdelivery_redis_data:
