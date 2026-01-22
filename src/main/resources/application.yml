@@ -17,6 +17,13 @@ spring:
           lob:
             non_contextual_creation: true
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OAUTH2_ISSUER_URI:http://localhost:8080/auth/realms/mozdelivery}
+          jwk-set-uri: ${OAUTH2_JWK_SET_URI:http://localhost:8080/auth/realms/mozdelivery/protocol/openid-connect/certs}
+
 management:
   endpoints:
     web:
@@ -31,3 +38,29 @@ logging:
     com.xavier.mozdeliveryapi: DEBUG
     org.springframework.security: DEBUG
     org.springframework.modulith: DEBUG
+
+# Application-specific configuration
+app:
+  rate-limiting:
+    enabled: true
+    log-violations: true
+    default-requests-per-minute: 100
+    tenant-requests-per-minute: 1000
+    user-requests-per-minute: 60
+    ip-requests-per-minute: 30
+    admin-requests-per-minute: 5000
+  
+  api:
+    versioning:
+      current-version: v1
+      supported-versions: v1
+      deprecated-versions: []
+    
+    security:
+      cors:
+        allowed-origins: "*"
+        allowed-methods: "GET,POST,PUT,DELETE,PATCH,OPTIONS"
+        allowed-headers: "*"
+        exposed-headers: "X-RateLimit-Limit,X-RateLimit-Remaining,X-RateLimit-Reset,API-Version,API-Supported-Versions,Deprecation,Sunset,Warning"
+        allow-credentials: true
+        max-age: 3600

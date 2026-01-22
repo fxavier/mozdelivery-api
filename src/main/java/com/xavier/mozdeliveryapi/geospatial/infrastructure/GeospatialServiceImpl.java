@@ -2,8 +2,10 @@ package com.xavier.mozdeliveryapi.geospatial.infrastructure;
 
 import com.xavier.mozdeliveryapi.geospatial.domain.*;
 import com.xavier.mozdeliveryapi.tenant.domain.TenantId;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityManagerFactory;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -13,6 +15,7 @@ import java.util.stream.Collectors;
  * Provides concrete implementations for all geospatial operations.
  */
 @Service
+@ConditionalOnBean(EntityManagerFactory.class)
 public class GeospatialServiceImpl implements GeospatialService {
     
     private final ServiceAreaRepository serviceAreaRepository;
