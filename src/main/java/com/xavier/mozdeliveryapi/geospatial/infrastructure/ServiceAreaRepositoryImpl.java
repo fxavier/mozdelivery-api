@@ -2,9 +2,11 @@ package com.xavier.mozdeliveryapi.geospatial.infrastructure;
 
 import com.xavier.mozdeliveryapi.geospatial.domain.*;
 import com.xavier.mozdeliveryapi.tenant.domain.TenantId;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManagerFactory;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -14,6 +16,7 @@ import java.util.Optional;
  * Provides concrete implementations for all spatial repository operations.
  */
 @Repository
+@ConditionalOnBean(EntityManagerFactory.class)
 @Transactional
 public class ServiceAreaRepositoryImpl implements ServiceAreaRepository {
     
