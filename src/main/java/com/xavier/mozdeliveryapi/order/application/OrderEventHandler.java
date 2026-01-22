@@ -14,7 +14,7 @@ import com.xavier.mozdeliveryapi.order.domain.OrderWorkflowService;
 /**
  * Event handler for order domain events.
  */
-@Component
+@Component("orderDomainEventHandler")
 public class OrderEventHandler {
     
     private final OrderRepository orderRepository;
