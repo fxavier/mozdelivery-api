@@ -29,3 +29,20 @@ spring:
         jwt:
           issuer-uri: http://localhost:8080/realms/mozdelivery
           jwk-set-uri: http://localhost:8080/realms/mozdelivery/protocol/openid-connect/certs
+
+payment:
+  mpesa:
+    api-url: http://localhost:9001/mpesa
+    consumer-key: dev-consumer-key
+    consumer-secret: dev-consumer-secret
+    short-code: "123456"
+    passkey: dev-passkey
+  multibanco:
+    api-url: http://localhost:9002/multibanco
+    api-key: dev-api-key
+    entity: "99999"
+  cards:
+    api-url: http://localhost:9003/cards
+    merchant-id: dev-merchant-id
+    api-key: dev-api-key
+    encryption-key: dev-encryption-key

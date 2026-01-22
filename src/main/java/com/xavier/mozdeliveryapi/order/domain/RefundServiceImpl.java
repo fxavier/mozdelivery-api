@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 /**
  * Implementation of RefundService.
  */
-@Service
+@Service("orderRefundService")
 public class RefundServiceImpl implements RefundService {
     
     @Override
