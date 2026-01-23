@@ -1,7 +1,6 @@
 package com.xavier.mozdeliveryapi.geospatial.application.usecase;
 
 import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +18,6 @@ import com.xavier.mozdeliveryapi.geospatial.application.usecase.port.ServiceArea
  * Provides concrete implementations for all geospatial operations.
  */
 @Service
-@ConditionalOnBean(ServiceAreaRepository.class)
 public class GeospatialServiceImpl implements GeospatialService {
     
     private final ServiceAreaRepository serviceAreaRepository;
