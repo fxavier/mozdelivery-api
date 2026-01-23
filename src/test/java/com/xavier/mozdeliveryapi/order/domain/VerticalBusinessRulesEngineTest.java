@@ -1,6 +1,8 @@
 package com.xavier.mozdeliveryapi.order.domain;
 
-import com.xavier.mozdeliveryapi.tenant.domain.Vertical;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.Vertical;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -9,6 +11,14 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
+import com.xavier.mozdeliveryapi.order.application.usecase.VerticalBusinessRulesEngine;
+import com.xavier.mozdeliveryapi.order.application.usecase.VerticalBusinessRulesEngineImpl;
+import com.xavier.mozdeliveryapi.order.domain.entity.Order;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.AgeVerification;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderItem;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.Prescription;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.RestrictedItem;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.ValidationResult;
 
 class VerticalBusinessRulesEngineTest {
     

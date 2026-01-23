@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.*;
+import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.Location;
+import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.Waypoint;
+import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.WaypointType;
 
 class WaypointTest {
     

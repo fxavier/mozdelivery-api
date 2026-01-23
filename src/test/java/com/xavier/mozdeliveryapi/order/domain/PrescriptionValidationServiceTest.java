@@ -5,6 +5,10 @@ import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import com.xavier.mozdeliveryapi.order.application.usecase.PrescriptionValidationService;
+import com.xavier.mozdeliveryapi.order.application.usecase.PrescriptionValidationServiceImpl;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.Prescription;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.ValidationResult;
 
 class PrescriptionValidationServiceTest {
     

@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.*;
+import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.Distance;
+import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.Location;
 
 class LocationTest {
     

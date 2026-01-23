@@ -1,6 +1,5 @@
 package com.xavier.mozdeliveryapi.geospatial.domain;
 
-import com.xavier.mozdeliveryapi.geospatial.infrastructure.DistanceCalculationServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -8,6 +7,11 @@ import java.time.Duration;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
+import com.xavier.mozdeliveryapi.geospatial.domain.entity.DistanceCalculationService;
+import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.Location;
+import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.Route;
+import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.WaypointType;
+import com.xavier.mozdeliveryapi.geospatial.infra.persistence.DistanceCalculationServiceImpl;
 
 class RouteTest {
     

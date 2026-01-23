@@ -4,7 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
-import com.xavier.mozdeliveryapi.tenant.domain.TenantId;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.compliance.domain.entity.Consent;
+import com.xavier.mozdeliveryapi.compliance.domain.valueobject.ConsentId;
+import com.xavier.mozdeliveryapi.compliance.domain.valueobject.ConsentStatus;
+import com.xavier.mozdeliveryapi.compliance.domain.valueobject.ConsentType;
+import com.xavier.mozdeliveryapi.compliance.domain.valueobject.DataSubjectId;
 
 /**
  * Unit tests for Consent aggregate.

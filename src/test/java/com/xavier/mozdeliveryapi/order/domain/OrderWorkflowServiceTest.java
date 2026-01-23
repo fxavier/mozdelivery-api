@@ -7,7 +7,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.xavier.mozdeliveryapi.tenant.domain.TenantId;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.PaymentMethod;
+import com.xavier.mozdeliveryapi.order.application.usecase.OrderWorkflowService;
+import com.xavier.mozdeliveryapi.order.application.usecase.OrderWorkflowServiceImpl;
+import com.xavier.mozdeliveryapi.order.domain.entity.Order;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.CancellationReason;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.DeliveryAddress;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderItem;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.PaymentInfo;
 
 class OrderWorkflowServiceTest {
     

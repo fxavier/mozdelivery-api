@@ -1,7 +1,14 @@
 package com.xavier.mozdeliveryapi.tenant.application;
 
-import com.xavier.mozdeliveryapi.shared.application.DomainEventPublisher;
-import com.xavier.mozdeliveryapi.tenant.domain.*;
+import com.xavier.mozdeliveryapi.tenant.domain.entity.Tenant;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantStatus;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.Vertical;
+import com.xavier.mozdeliveryapi.shared.application.usecase.port.DomainEventPublisher;
+import com.xavier.mozdeliveryapi.tenant.application.dto.TenantOnboardingRequest;
+import com.xavier.mozdeliveryapi.tenant.application.dto.TenantOnboardingResponse;
+import com.xavier.mozdeliveryapi.tenant.application.usecase.TenantOnboardingService;
+import com.xavier.mozdeliveryapi.tenant.application.usecase.TenantOnboardingStats;
+import com.xavier.mozdeliveryapi.tenant.application.usecase.port.TenantRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

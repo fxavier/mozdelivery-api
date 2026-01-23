@@ -7,6 +7,12 @@ import java.time.Duration;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
+import com.xavier.mozdeliveryapi.tenant.domain.entity.Tenant;
+import com.xavier.mozdeliveryapi.tenant.domain.event.TenantCreatedEvent;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantConfiguration;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantStatus;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.Vertical;
 
 /**
  * Unit tests for Tenant aggregate.

@@ -1,0 +1,5 @@
+/**
+ * Tenant domain entities exposed to other modules.
+ */
+@org.springframework.modulith.NamedInterface("domain")
+package com.xavier.mozdeliveryapi.tenant.domain.entity;

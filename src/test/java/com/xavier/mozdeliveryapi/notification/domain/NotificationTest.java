@@ -5,7 +5,13 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 
-import com.xavier.mozdeliveryapi.tenant.domain.TenantId;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.notification.domain.entity.Notification;
+import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationChannel;
+import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationId;
+import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationPriority;
+import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationStatus;
+import com.xavier.mozdeliveryapi.notification.domain.valueobject.Recipient;
 
 /**
  * Unit tests for the Notification domain model.
