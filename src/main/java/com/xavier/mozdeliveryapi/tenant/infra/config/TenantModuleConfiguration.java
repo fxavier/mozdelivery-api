@@ -1,6 +1,7 @@
 package com.xavier.mozdeliveryapi.tenant.infra.config;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ComponentScan(basePackages = "com.xavier.mozdeliveryapi.tenant")
 @ConditionalOnProperty(prefix = "spring.datasource", name = "url")
 @EnableJpaRepositories(basePackages = "com.xavier.mozdeliveryapi.tenant.infra.persistence")
+@EntityScan(basePackages = "com.xavier.mozdeliveryapi.tenant.infra.persistence")
 @EnableTransactionManagement
 public class TenantModuleConfiguration {
     

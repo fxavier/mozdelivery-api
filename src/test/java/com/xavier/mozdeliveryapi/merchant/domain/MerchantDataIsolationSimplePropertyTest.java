@@ -8,9 +8,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.xavier.mozdeliveryapi.merchant.domain.entity.Merchant;
 import com.xavier.mozdeliveryapi.merchant.domain.valueobject.BusinessDetails;
 import com.xavier.mozdeliveryapi.merchant.domain.valueobject.MerchantConfiguration;
-import com.xavier.mozdeliveryapi.merchant.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.merchant.domain.valueobject.MerchantStatus;
 import com.xavier.mozdeliveryapi.merchant.domain.valueobject.Vertical;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;

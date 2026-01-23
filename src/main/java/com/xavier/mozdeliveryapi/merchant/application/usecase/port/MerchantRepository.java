@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import com.xavier.mozdeliveryapi.merchant.domain.entity.Merchant;
-import com.xavier.mozdeliveryapi.merchant.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.merchant.domain.valueobject.MerchantStatus;
 import com.xavier.mozdeliveryapi.merchant.domain.valueobject.Vertical;
 import com.xavier.mozdeliveryapi.shared.application.usecase.port.Repository;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 
 /**
  * Repository interface for Merchant aggregate.
