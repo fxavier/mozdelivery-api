@@ -23,7 +23,7 @@ This implementation plan breaks down the multi-tenant delivery platform into dis
   - Configure OAuth2/OIDC authentication and authorization
   - _Requirements: 1.1, 1.3, 9.3, 13.2_
 
-- [ ]* 1.1 Write property test for tenant data isolation
+- [ ] 1.1 Write property test for tenant data isolation
   - **Property 1: Tenant Data Isolation**
   - **Validates: Requirements 1.1, 1.3**
 
@@ -34,7 +34,7 @@ This implementation plan breaks down the multi-tenant delivery platform into dis
     - Add tenant configuration management
     - _Requirements: 1.1, 1.2, 3.1_
 
-  - [ ]* 2.2 Write property test for tenant configuration independence
+  - [x] 2.2 Write property test for tenant configuration independence
     - **Property 2: Tenant Configuration Independence**
     - **Validates: Requirements 1.2, 1.5**
 
