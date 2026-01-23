@@ -2,13 +2,18 @@
 
 ## Introduction
 
-This document specifies the requirements for a multi-tenant, multi-city, multi-vertical delivery platform targeting the Mozambique market. The platform enables businesses across various verticals (restaurants, grocery, pharmacies, convenience stores, electronics, florists, beverages, fuel station convenience) to offer delivery services through mobile apps and web interfaces, with comprehensive backend management capabilities.
+This document specifies the requirements for a multi-merchant delivery marketplace targeting the Mozambique market. The platform enables merchants across various verticals (restaurants, grocery, pharmacies, convenience stores, electronics, florists, beverages, fuel station convenience) to sell products through mobile apps and web interfaces, with support for guest checkout and secure delivery confirmation.
 
 ## Glossary
 
-- **Platform**: The complete delivery system including mobile apps, web backoffice, and backend services
-- **Tenant**: A business entity (restaurant, pharmacy, etc.) using the platform to offer delivery services
+- **Platform**: The complete delivery marketplace including mobile apps, web backoffice, and backend services
+- **Merchant**: A business entity (restaurant, pharmacy, etc.) selling products on the platform (technical term: Tenant)
+- **Tenant**: Technical term for merchant in the backend system
+- **Client**: End customer placing orders (registered or guest)
+- **Courier**: Delivery person fulfilling orders
 - **Vertical**: A business category (restaurant, grocery, pharmacy, etc.)
+- **Guest Checkout**: Ordering without creating an account, using address + contact details
+- **Delivery Confirmation Code (DCC)**: A short unique OTP/PIN issued after order confirmation and required to confirm delivery completion
 - **Order_Management_System**: The core system handling order lifecycle from creation to completion
 - **Payment_Gateway**: The system processing payments through various local and international methods
 - **Dispatch_System**: The system managing delivery assignment and routing
@@ -45,29 +50,78 @@ This document specifies the requirements for a multi-tenant, multi-city, multi-v
 4. WHEN processing orders, THE Order_Management_System SHALL validate delivery addresses against city-specific service areas
 5. WHEN managing delivery capacity, THE Dispatch_System SHALL allocate resources per city with independent scaling
 
-### Requirement 3: Multi-Vertical Business Support
+### Requirement 3: Multi-Vertical Business Support (Merchant-focused)
 
-**User Story:** As a business owner, I want to operate within my specific vertical (restaurant, pharmacy, grocery, etc.), so that I can access vertical-specific features and comply with industry regulations.
+**User Story:** As a merchant, I want to register my business under a vertical (restaurant, pharmacy, grocery, etc.), so that I can manage my store and sell products with vertical-specific rules.
 
 #### Acceptance Criteria
 
-1. WHEN a business registers, THE Platform SHALL assign them to a specific vertical with appropriate feature sets
-2. WHERE pharmacy operations are involved, THE Platform SHALL enforce prescription validation and age verification requirements
-3. WHEN processing orders, THE Order_Management_System SHALL apply vertical-specific business rules and validation
-4. WHEN displaying products, THE Platform SHALL support vertical-specific categorization and search filters
-5. WHERE compliance requirements exist, THE Compliance_Module SHALL enforce vertical-specific regulations automatically
+1. WHEN a business registers, THE Platform SHALL create a Merchant (Tenant) and assign it to a vertical with appropriate feature flags
+2. WHEN a user browses the platform, THE Platform SHALL list all Merchants available in the user's city and show their vertical type (grocery/pharmacy/restaurant/etc.)
+3. WHEN a user selects a Merchant, THE Platform SHALL display that Merchant's catalogs, categories, and products
+4. WHERE pharmacy operations are involved, THE Platform SHALL enforce prescription validation and age verification requirements that are not applied to other verticals
+5. THE Platform SHALL support merchant onboarding approval (manual or automated) before the merchant becomes publicly visible
+
+### Requirement 3A: Merchant Catalog, Category, and Product Management
+
+**User Story:** As a merchant, I want to manage catalogs, categories, and products, so customers can browse and order accurately.
+
+#### Acceptance Criteria
+
+1. THE Platform SHALL support CRUD operations for:
+   - Catalogs (e.g., "Lunch Menu", "Drinks", "Household Essentials")
+   - Categories (e.g., "Burgers", "Pain Relief", "Fruits")
+   - Products (name, description, images, price, availability, stock rules if enabled)
+2. WHEN a product is out of stock or unavailable, THE Platform SHALL prevent ordering and show an availability message
+3. WHEN a merchant updates catalogs/categories/products, THE Platform SHALL reflect changes on web/mobile within a defined refresh window (e.g., near real-time)
+4. THE Platform SHALL support product modifiers/options where relevant (e.g., size, add-ons) per vertical configuration
+5. THE Web_Backoffice SHALL provide an interface for merchants to manage catalogs, categories, and products with audit logging
+
+### Requirement 3B: User Registration for Roles (Merchant, Courier, Client)
+
+**User Story:** As a user, I want to register as a merchant, courier, or client, so I can use the platform according to my role.
+
+#### Acceptance Criteria
+
+1. THE Platform SHALL support registration flows for:
+   - Merchant (company registration + verification fields)
+   - Courier (identity + vehicle + availability + city)
+   - Client (basic user account)
+2. THE Platform SHALL enforce role-based access control (RBAC) so merchants cannot access courier tools, and vice versa
+3. WHEN registration requires approval (merchant/courier), THE Platform SHALL support an approval workflow before enabling operations
+4. THE Platform SHALL support login via OAuth2/OIDC for registered users
+5. THE Platform SHALL allow guest users to browse and order without account creation (see Requirement 4A)
 
 ### Requirement 4: Order Management and Lifecycle
 
-**User Story:** As a customer, I want to place orders and track their progress from creation to delivery, so that I have visibility and control over my purchases.
+**User Story:** As a customer (registered or guest), I want to place orders and track progress from creation to delivery.
 
 #### Acceptance Criteria
 
 1. WHEN a customer places an order, THE Order_Management_System SHALL create an order with unique identification and initial status
-2. WHEN order status changes occur, THE Order_Management_System SHALL update status and trigger appropriate notifications
-3. WHEN customers request order cancellation, THE Order_Management_System SHALL process cancellations according to business rules and refund policies
-4. WHEN orders are ready for dispatch, THE Order_Management_System SHALL integrate with the Dispatch_System for delivery assignment
-5. WHEN orders are completed, THE Order_Management_System SHALL finalize the transaction and update all relevant systems
+2. THE Order_Management_System SHALL support orders from:
+   - Registered clients
+   - Guest checkout clients (see Requirement 4A)
+3. WHEN order status changes occur, THE Order_Management_System SHALL update status and trigger appropriate notifications
+4. WHEN orders are ready for dispatch, THE Order_Management_System SHALL integrate with the Dispatch_System for assignment
+5. WHEN orders are completed, THE Order_Management_System SHALL finalize the transaction and update relevant systems, including delivery confirmation (see Requirement 7A)
+
+### Requirement 4A: Guest Checkout (Order Without Login)
+
+**User Story:** As a client visiting the website/app, I want to browse merchants, catalogs, and categories and place an order without logging in.
+
+#### Acceptance Criteria
+
+1. WHEN a guest user visits the platform, THE Platform SHALL allow browsing of:
+   - Merchants (filtered by city/service area)
+   - Catalogs and categories per merchant
+   - Products and product details
+2. WHEN a guest places an order, THE Platform SHALL require minimal checkout fields:
+   - Delivery address (validated by Geospatial_Service)
+   - Contact information (phone/email) for notifications and delivery coordination
+3. WHEN a guest order is confirmed, THE Platform SHALL generate a Delivery Confirmation Code (DCC) and send it to the client via configured channels (SMS/push/email/WhatsApp)
+4. THE Platform SHALL create a "guest identity" reference for order tracking (e.g., order link + verification token), without requiring full account creation
+5. THE Platform SHALL support optional "convert guest to registered client" after ordering, without losing order history
 
 ### Requirement 5: Payment Processing and Multi-Currency
 
@@ -99,11 +153,27 @@ This document specifies the requirements for a multi-tenant, multi-city, multi-v
 
 #### Acceptance Criteria
 
-1. WHEN orders are ready for delivery, THE Dispatch_System SHALL automatically assign orders to available delivery personnel based on location and capacity
-2. WHEN optimizing routes, THE Dispatch_System SHALL calculate efficient delivery routes considering traffic, distance, and delivery windows
-3. WHEN delivery capacity changes, THE Dispatch_System SHALL dynamically reassign orders to maintain service levels
-4. WHEN delivery issues arise, THE Dispatch_System SHALL provide alternative routing and escalation procedures
-5. WHEN deliveries are completed, THE Dispatch_System SHALL update order status and collect delivery confirmation
+1. WHEN orders are ready for delivery, THE Dispatch_System SHALL assign orders to available couriers based on location, capacity, and city
+2. WHEN optimizing routes, THE Dispatch_System SHALL consider traffic, distance, and delivery windows
+3. WHEN delivery issues arise, THE Dispatch_System SHALL provide escalation paths (reassign, cancel, partial delivery rules per vertical)
+4. WHEN deliveries are completed, THE Dispatch_System SHALL update order status and collect delivery confirmation (see Requirement 7A)
+5. THE courier mobile app SHALL support proof-of-delivery workflows
+
+### Requirement 7A: Delivery Completion Using Confirmation Code (DCC)
+
+**User Story:** As a client, I want a code to confirm delivery, so the courier can only complete delivery when I actually receive the package.
+
+#### Acceptance Criteria
+
+1. WHEN an order is confirmed, THE Platform SHALL generate a DCC (OTP/PIN) unique to the order
+2. WHEN the courier attempts to complete delivery, THE courier app SHALL require entering the DCC
+3. IF the entered DCC matches and is valid, THEN the system SHALL mark the order as Delivered and log the event in the Audit_System
+4. IF the DCC is incorrect, THEN the system SHALL reject completion and enforce retry limits and lockout rules
+5. THE Platform SHALL define DCC security rules:
+   - Expiration policy (time-based and/or order-status based)
+   - Max attempts per courier/order
+   - Resend policy to client
+   - Support/admin override process with audit logs
 
 ### Requirement 8: Analytics and Business Intelligence
 
@@ -143,7 +213,7 @@ This document specifies the requirements for a multi-tenant, multi-city, multi-v
 
 ### Requirement 11: Mobile Application Features
 
-**User Story:** As a customer, I want to use intuitive mobile apps to browse, order, and track deliveries, so that I can access services conveniently from my smartphone.
+**User Story:** As a user (client/courier), I want to use intuitive mobile apps to browse, order, and manage deliveries, so that I can access services conveniently from my smartphone.
 
 #### Acceptance Criteria
 
@@ -152,6 +222,8 @@ This document specifies the requirements for a multi-tenant, multi-city, multi-v
 3. WHEN tracking orders, THE Mobile_App SHALL display real-time status updates with interactive maps
 4. WHEN managing account, THE Mobile_App SHALL provide secure authentication with biometric support where available
 5. WHEN offline, THE Mobile_App SHALL cache essential data and sync when connectivity is restored
+6. Courier app MUST include "Complete delivery with DCC" flow
+7. Client app/web MUST show "Your delivery confirmation code" and a secure way to retrieve/resend it
 
 ### Requirement 12: Web Backoffice Management
 
@@ -164,6 +236,8 @@ This document specifies the requirements for a multi-tenant, multi-city, multi-v
 3. WHEN analyzing performance, THE Web_Backoffice SHALL provide comprehensive dashboards with drill-down capabilities
 4. WHEN managing staff, THE Web_Backoffice SHALL support role-based access control with audit logging
 5. WHEN configuring settings, THE Web_Backoffice SHALL allow tenant-specific customization without technical expertise
+6. Merchant backoffice MUST include catalog/category/product management (Requirement 3A)
+7. Merchant backoffice MUST show order queue and status tracking for their store
 
 ### Requirement 13: Integration and API Management
 
@@ -176,6 +250,9 @@ This document specifies the requirements for a multi-tenant, multi-city, multi-v
 3. WHEN processing API requests, THE Platform SHALL implement rate limiting and throttling to prevent abuse
 4. WHEN API errors occur, THE Platform SHALL provide detailed error responses with troubleshooting guidance
 5. WHEN versioning APIs, THE Platform SHALL maintain backward compatibility with clear deprecation policies
+6. Public APIs for browsing merchants/catalogs/products and guest checkout
+7. Authenticated APIs for merchant management and courier operations
+8. Rate limiting particularly for guest checkout endpoints and DCC validation endpoints
 
 ### Requirement 14: Data Management and Backup
 
