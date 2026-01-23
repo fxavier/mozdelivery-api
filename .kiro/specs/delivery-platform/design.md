@@ -1,15 +1,15 @@
-# Design Document: Multi-Tenant Delivery Platform
+# Design Document: Multi-Merchant Delivery Marketplace
 
 ## Overview
 
-The multi-tenant delivery platform is designed as a comprehensive solution for businesses across multiple verticals to offer delivery services in Mozambique. The system employs a modern microservices architecture using Spring Modulith with hexagonal architecture principles, ensuring scalability, maintainability, and proper separation of concerns.
+The multi-merchant delivery marketplace is designed as a comprehensive platform for merchants across multiple verticals to sell products and services with delivery capabilities in Mozambique. The system employs a modern microservices architecture using Spring Modulith with hexagonal architecture principles, ensuring scalability, maintainability, and proper separation of concerns.
 
 The platform consists of three main components:
-- **Mobile Applications**: Flutter-based Android/iOS apps for customers
-- **Web Backoffice**: Angular 20 + TailwindCSS management interface for businesses with proper separation of concerns (*.ts, *.html, *.css files)
+- **Mobile Applications**: Flutter-based Android/iOS apps for clients and couriers
+- **Web Backoffice**: Angular 20 + TailwindCSS management interface for merchants with proper separation of concerns (*.ts, *.html, *.css files)
 - **Backend Services**: Java 21 + Spring Boot + Spring Modulith with hexagonal architecture
 
-Key architectural decisions prioritize multi-tenancy, geospatial capabilities, compliance requirements, and performance at scale.
+Key architectural decisions prioritize merchant onboarding, guest checkout capabilities, delivery confirmation security, and role-based access control.
 
 ## Architecture
 
@@ -18,24 +18,29 @@ Key architectural decisions prioritize multi-tenancy, geospatial capabilities, c
 ```mermaid
 graph TB
     subgraph "Client Layer"
-        MA[Mobile Apps<br/>Flutter]
-        WB[Web Backoffice<br/>Angular 20 + TailwindCSS]
+        CA[Client Apps<br/>Flutter]
+        CRA[Courier Apps<br/>Flutter]
+        WB[Merchant Backoffice<br/>Angular 20 + TailwindCSS]
+        PW[Public Web<br/>Guest Browsing]
     end
     
     subgraph "API Gateway Layer"
         AG[API Gateway<br/>Spring Cloud Gateway]
         AUTH[Authentication Service<br/>OAuth2/OIDC]
+        RBAC[Role-Based Access Control]
     end
     
     subgraph "Application Layer - Spring Modulith"
+        MM[Merchant Management<br/>Module]
+        CM[Catalog Management<br/>Module]
         OM[Order Management<br/>Module]
+        GC[Guest Checkout<br/>Module]
         PM[Payment<br/>Module]
         DM[Dispatch<br/>Module]
-        TM[Tracking<br/>Module]
+        DC[Delivery Confirmation<br/>Module]
         NM[Notification<br/>Module]
         AM[Analytics<br/>Module]
-        CM[Compliance<br/>Module]
-        TEN[Tenant<br/>Module]
+        COMP[Compliance<br/>Module]
         GEO[Geospatial<br/>Module]
     end
     
@@ -52,35 +57,43 @@ graph TB
         CARDS[Card Payment APIs]
         SMS[SMS Gateway]
         PUSH[Push Notification Service]
+        WA[WhatsApp API]
     end
     
-    MA --> AG
+    CA --> AG
+    CRA --> AG
     WB --> AG
+    PW --> AG
     AG --> AUTH
+    AG --> RBAC
+    AG --> MM
+    AG --> CM
     AG --> OM
+    AG --> GC
     AG --> PM
     AG --> DM
-    AG --> TM
+    AG --> DC
     AG --> NM
     AG --> AM
-    AG --> CM
-    AG --> TEN
+    AG --> COMP
     AG --> GEO
     
+    MM --> PG
+    CM --> PG
     OM --> PG
+    GC --> PG
     PM --> PG
     DM --> PG
-    TM --> PG
+    DC --> RD
     NM --> RD
     AM --> PG
-    CM --> PG
-    TEN --> PG
+    COMP --> PG
     GEO --> PG
     
     OM --> KF
     PM --> KF
     DM --> KF
-    TM --> KF
+    DC --> KF
     NM --> KF
     
     PM --> MPESA
@@ -88,23 +101,25 @@ graph TB
     PM --> CARDS
     NM --> SMS
     NM --> PUSH
+    NM --> WA
 ```
 
 ### Spring Modulith Module Structure
 
 The backend is organized into bounded contexts using Spring Modulith:
 
-1. **Tenant Module**: Multi-tenant management and isolation
-2. **Order Management Module**: Order lifecycle and business rules
-3. **Payment Module**: Payment processing and multi-currency support
-4. **Dispatch Module**: Delivery assignment and routing
-5. **Tracking Module**: Real-time location and status tracking
-6. **Notification Module**: Multi-channel communication
-7. **Analytics Module**: Business intelligence and reporting
-8. **Compliance Module**: Regulatory compliance and audit
-9. **Geospatial Module**: Location-based services and routing
-10. **Inventory Module**: Product and stock management
-11. **User Management Module**: Authentication and authorization
+1. **Merchant Management Module**: Merchant registration, onboarding, and profile management
+2. **Catalog Management Module**: Product catalogs, categories, and inventory management
+3. **Order Management Module**: Order lifecycle and business rules
+4. **Guest Checkout Module**: Anonymous ordering and tracking
+5. **Payment Module**: Payment processing and multi-currency support
+6. **Dispatch Module**: Delivery assignment and routing
+7. **Delivery Confirmation Module**: DCC generation, validation, and security
+8. **Notification Module**: Multi-channel communication
+9. **Analytics Module**: Business intelligence and reporting
+10. **Compliance Module**: Regulatory compliance and audit
+11. **Geospatial Module**: Location-based services and routing
+12. **User Management Module**: Authentication, authorization, and role management
 
 ### Angular 20 Web Backoffice Architecture
 
@@ -201,33 +216,97 @@ graph TB
 
 ### Core Domain Models
 
-#### Order Aggregate
+#### Merchant Aggregate
 ```java
-public class Order {
-    private OrderId id;
-    private TenantId tenantId;
-    private CustomerId customerId;
-    private List<OrderItem> items;
-    private OrderStatus status;
-    private DeliveryAddress deliveryAddress;
-    private PaymentInfo paymentInfo;
-    private Money totalAmount;
-    private Currency currency;
+public class Merchant {
+    private MerchantId id;
+    private String businessName;
+    private String displayName;
+    private Vertical vertical;
+    private MerchantStatus status;
+    private BusinessDetails businessDetails;
+    private MerchantConfiguration configuration;
+    private ComplianceSettings complianceSettings;
+    private ApprovalStatus approvalStatus;
     private Instant createdAt;
     private Instant updatedAt;
 }
 ```
 
-#### Tenant Aggregate
+#### Catalog Aggregate
 ```java
-public class Tenant {
-    private TenantId id;
+public class Catalog {
+    private CatalogId id;
+    private MerchantId merchantId;
     private String name;
-    private Vertical vertical;
-    private List<City> serviceCities;
-    private TenantConfiguration configuration;
-    private TenantStatus status;
-    private ComplianceSettings complianceSettings;
+    private String description;
+    private List<Category> categories;
+    private CatalogStatus status;
+    private Instant createdAt;
+    private Instant updatedAt;
+}
+```
+
+#### Product Aggregate
+```java
+public class Product {
+    private ProductId id;
+    private MerchantId merchantId;
+    private CategoryId categoryId;
+    private String name;
+    private String description;
+    private List<String> imageUrls;
+    private Money price;
+    private Currency currency;
+    private ProductAvailability availability;
+    private StockInfo stockInfo;
+    private List<ProductModifier> modifiers;
+    private Instant createdAt;
+    private Instant updatedAt;
+}
+```
+
+#### Order Aggregate (Updated)
+```java
+public class Order {
+    private OrderId id;
+    private MerchantId merchantId;
+    private ClientId clientId; // null for guest orders
+    private GuestInfo guestInfo; // null for registered clients
+    private List<OrderItem> items;
+    private DeliveryAddress deliveryAddress;
+    private OrderStatus status;
+    private PaymentInfo paymentInfo;
+    private Money totalAmount;
+    private Currency currency;
+    private DeliveryConfirmationCode deliveryCode;
+    private Instant createdAt;
+    private Instant updatedAt;
+}
+```
+
+#### Delivery Confirmation Code Aggregate
+```java
+public class DeliveryConfirmationCode {
+    private OrderId orderId;
+    private String code;
+    private DCCStatus status;
+    private Instant generatedAt;
+    private Instant expiresAt;
+    private int attemptCount;
+    private int maxAttempts;
+    private List<DCCAttempt> attempts;
+}
+```
+
+#### Guest Info Value Object
+```java
+public class GuestInfo {
+    private String contactPhone;
+    private String contactEmail;
+    private String contactName;
+    private GuestTrackingToken trackingToken;
+    private Instant createdAt;
 }
 ```
 
@@ -236,34 +315,92 @@ public class Tenant {
 public class Delivery {
     private DeliveryId id;
     private OrderId orderId;
-    private DeliveryPersonId deliveryPersonId;
+    private CourierId courierId;
     private Route route;
     private DeliveryStatus status;
     private Location currentLocation;
     private Instant estimatedArrival;
     private List<DeliveryEvent> events;
+    private DeliveryConfirmationCode confirmationCode;
 }
 ```
 
 ### Module Interfaces
 
-#### Order Management Module
+#### Merchant Management Module
 ```java
 // Domain Service
-public interface OrderService {
-    Order createOrder(CreateOrderCommand command);
-    Order updateOrderStatus(OrderId orderId, OrderStatus status);
-    Order cancelOrder(OrderId orderId, CancellationReason reason);
-    List<Order> findOrdersByTenant(TenantId tenantId, OrderFilter filter);
+public interface MerchantService {
+    Merchant registerMerchant(MerchantRegistrationCommand command);
+    Merchant updateMerchantProfile(MerchantId merchantId, MerchantProfileUpdate update);
+    void approveMerchant(MerchantId merchantId, ApprovalDecision decision);
+    List<Merchant> findMerchantsByCity(City city, Vertical vertical);
 }
 
 // Application Service
-public interface OrderApplicationService {
-    OrderResponse createOrder(CreateOrderRequest request);
-    OrderResponse getOrder(OrderId orderId);
-    List<OrderResponse> getOrdersForTenant(TenantId tenantId, OrderFilter filter);
-    void cancelOrder(OrderId orderId, CancellationRequest request);
+public interface MerchantApplicationService {
+    MerchantResponse registerMerchant(MerchantRegistrationRequest request);
+    MerchantResponse getMerchant(MerchantId merchantId);
+    List<MerchantResponse> getMerchantsByLocation(LocationFilter filter);
+    void updateMerchantStatus(MerchantId merchantId, MerchantStatusUpdate update);
 }
+```
+
+#### Catalog Management Module
+```java
+// Domain Service
+public interface CatalogService {
+    Catalog createCatalog(MerchantId merchantId, CreateCatalogCommand command);
+    Category createCategory(CatalogId catalogId, CreateCategoryCommand command);
+    Product createProduct(CategoryId categoryId, CreateProductCommand command);
+    void updateProductAvailability(ProductId productId, ProductAvailability availability);
+}
+
+// Application Service
+public interface CatalogApplicationService {
+    CatalogResponse createCatalog(CreateCatalogRequest request);
+    CategoryResponse createCategory(CreateCategoryRequest request);
+    ProductResponse createProduct(CreateProductRequest request);
+    List<CatalogResponse> getMerchantCatalogs(MerchantId merchantId);
+    List<ProductResponse> getProductsByCategory(CategoryId categoryId);
+}
+```
+
+#### Guest Checkout Module
+```java
+// Domain Service
+public interface GuestCheckoutService {
+    GuestOrder createGuestOrder(GuestOrderCommand command);
+    GuestTrackingInfo getOrderTracking(GuestTrackingToken token);
+    void convertGuestToClient(GuestTrackingToken token, ClientRegistration registration);
+}
+
+// Application Service
+public interface GuestCheckoutApplicationService {
+    GuestOrderResponse createOrder(GuestOrderRequest request);
+    GuestTrackingResponse trackOrder(String trackingToken);
+    void resendDeliveryCode(String trackingToken);
+}
+```
+
+#### Delivery Confirmation Module
+```java
+// Domain Service
+public interface DeliveryConfirmationService {
+    DeliveryConfirmationCode generateCode(OrderId orderId);
+    boolean validateCode(OrderId orderId, String code, CourierId courierId);
+    void resendCode(OrderId orderId);
+    void handleFailedAttempt(OrderId orderId, CourierId courierId, String attemptedCode);
+}
+
+// Application Service
+public interface DeliveryConfirmationApplicationService {
+    void generateDeliveryCode(OrderId orderId);
+    DeliveryCompletionResult completeDelivery(CompleteDeliveryRequest request);
+    void resendDeliveryCode(OrderId orderId);
+    DCCStatusResponse getCodeStatus(OrderId orderId);
+}
+```
 
 // Repository Interface
 public interface OrderRepository {
@@ -330,9 +467,125 @@ public interface LocationTracker {
 }
 ```
 
-### Event-Driven Communication
+### API Endpoints
 
-#### Domain Events
+#### Public APIs (No Authentication Required)
+
+**Merchant Discovery**
+```
+GET /api/public/merchants?city={city}&vertical={vertical}
+GET /api/public/merchants/{merchantId}
+GET /api/public/merchants/{merchantId}/catalogs
+GET /api/public/catalogs/{catalogId}/categories
+GET /api/public/categories/{categoryId}/products
+GET /api/public/products/{productId}
+```
+
+**Guest Checkout**
+```
+POST /api/public/orders/guest
+GET /api/public/orders/guest/track?token={trackingToken}
+POST /api/public/orders/guest/resend-code
+```
+
+#### Authenticated APIs
+
+**Merchant Management** (Merchant Role)
+```
+POST /api/v1/merchants/register
+PUT /api/v1/merchants/{merchantId}/profile
+GET /api/v1/merchants/{merchantId}/orders
+PUT /api/v1/merchants/{merchantId}/status
+
+POST /api/v1/catalogs
+PUT /api/v1/catalogs/{catalogId}
+DELETE /api/v1/catalogs/{catalogId}
+POST /api/v1/categories
+PUT /api/v1/categories/{categoryId}
+POST /api/v1/products
+PUT /api/v1/products/{productId}
+PUT /api/v1/products/{productId}/availability
+```
+
+**Courier Operations** (Courier Role)
+```
+GET /api/v1/couriers/{courierId}/assignments
+PUT /api/v1/deliveries/{deliveryId}/status
+POST /api/v1/deliveries/{deliveryId}/complete
+PUT /api/v1/couriers/{courierId}/location
+```
+
+**Client Operations** (Client Role)
+```
+POST /api/v1/orders
+GET /api/v1/orders/{orderId}
+PUT /api/v1/orders/{orderId}/cancel
+GET /api/v1/clients/{clientId}/orders
+```
+
+### Order State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> CREATED
+    CREATED --> PAYMENT_PROCESSING : Payment initiated
+    CREATED --> CANCELLED : Order cancelled
+    
+    PAYMENT_PROCESSING --> PAYMENT_CONFIRMED : Payment successful
+    PAYMENT_PROCESSING --> PAYMENT_FAILED : Payment failed
+    PAYMENT_FAILED --> CANCELLED : Auto-cancel
+    
+    PAYMENT_CONFIRMED --> PREPARING : Merchant accepts
+    PAYMENT_CONFIRMED --> CANCELLED : Merchant rejects
+    
+    PREPARING --> READY_FOR_PICKUP : Order ready
+    PREPARING --> CANCELLED : Preparation failed
+    
+    READY_FOR_PICKUP --> PICKED_UP : Courier picks up
+    READY_FOR_PICKUP --> CANCELLED : Pickup timeout
+    
+    PICKED_UP --> OUT_FOR_DELIVERY : Courier starts delivery
+    OUT_FOR_DELIVERY --> DELIVERED : DCC validated
+    OUT_FOR_DELIVERY --> DELIVERY_FAILED : Delivery attempt failed
+    
+    DELIVERY_FAILED --> OUT_FOR_DELIVERY : Retry delivery
+    DELIVERY_FAILED --> CANCELLED : Max retries exceeded
+    
+    CANCELLED --> [*]
+    DELIVERED --> [*]
+```
+
+### Role-Based Access Control
+
+#### Role Definitions
+```java
+public enum UserRole {
+    ADMIN,          // Platform administration
+    MERCHANT,       // Business owner/manager
+    COURIER,        // Delivery person
+    CLIENT,         // Registered customer
+    GUEST           // Anonymous user (limited access)
+}
+```
+
+#### Permission Matrix
+| Resource | Admin | Merchant | Courier | Client | Guest |
+|----------|-------|----------|---------|--------|-------|
+| Browse Merchants | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Manage Catalogs | ✓ | ✓ (own) | ✗ | ✗ | ✗ |
+| Place Orders | ✓ | ✗ | ✗ | ✓ | ✓ |
+| Manage Deliveries | ✓ | ✗ | ✓ (assigned) | ✗ | ✗ |
+| View Analytics | ✓ | ✓ (own) | ✗ | ✗ | ✗ |
+| Complete Delivery | ✓ | ✗ | ✓ | ✗ | ✗ |
+
+#### Authentication Approach
+- **OAuth2/OIDC** for registered users (Merchant, Courier, Client)
+- **JWT tokens** with role-based claims
+- **Guest tracking tokens** for anonymous order tracking
+- **API key authentication** for merchant integrations
+- **Rate limiting** per role and endpoint type
+
+### Event-Driven Communication
 ```java
 // Order Events
 public record OrderCreatedEvent(OrderId orderId, TenantId tenantId, CustomerId customerId, Instant timestamp) {}
