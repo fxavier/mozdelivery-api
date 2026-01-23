@@ -3,7 +3,16 @@ package com.xavier.mozdeliveryapi.order.domain;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.xavier.mozdeliveryapi.tenant.domain.TenantId;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.PaymentMethod;
+import com.xavier.mozdeliveryapi.order.domain.entity.Order;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.DeliveryAddress;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderItem;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.PaymentInfo;
 
 /**
  * Factory for creating test orders.

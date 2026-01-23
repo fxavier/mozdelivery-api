@@ -6,8 +6,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
-import com.xavier.mozdeliveryapi.geospatial.domain.Location;
-import com.xavier.mozdeliveryapi.tenant.domain.TenantId;
+import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.Location;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.dispatch.domain.entity.DeliveryPerson;
+import com.xavier.mozdeliveryapi.dispatch.domain.valueobject.DeliveryCapacity;
+import com.xavier.mozdeliveryapi.dispatch.domain.valueobject.DeliveryPersonId;
+import com.xavier.mozdeliveryapi.dispatch.domain.valueobject.DeliveryPersonStatus;
 
 class DeliveryPersonTest {
     

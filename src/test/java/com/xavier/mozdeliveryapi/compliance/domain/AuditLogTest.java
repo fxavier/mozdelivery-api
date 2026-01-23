@@ -6,7 +6,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
-import com.xavier.mozdeliveryapi.tenant.domain.TenantId;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.compliance.domain.entity.AuditLog;
+import com.xavier.mozdeliveryapi.compliance.domain.valueobject.AuditEventType;
+import com.xavier.mozdeliveryapi.compliance.domain.valueobject.AuditLogId;
+import com.xavier.mozdeliveryapi.compliance.domain.valueobject.AuditSeverity;
 
 /**
  * Unit tests for AuditLog aggregate.

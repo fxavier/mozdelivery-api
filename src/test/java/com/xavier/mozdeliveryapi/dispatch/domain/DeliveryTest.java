@@ -8,13 +8,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
-import com.xavier.mozdeliveryapi.geospatial.domain.Distance;
-import com.xavier.mozdeliveryapi.geospatial.domain.Location;
-import com.xavier.mozdeliveryapi.geospatial.domain.Route;
-import com.xavier.mozdeliveryapi.geospatial.domain.Waypoint;
-import com.xavier.mozdeliveryapi.geospatial.domain.WaypointType;
-import com.xavier.mozdeliveryapi.order.domain.OrderId;
-import com.xavier.mozdeliveryapi.tenant.domain.TenantId;
+import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.Distance;
+import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.Location;
+import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.Route;
+import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.Waypoint;
+import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.WaypointType;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
+import com.xavier.mozdeliveryapi.dispatch.domain.entity.Delivery;
+import com.xavier.mozdeliveryapi.dispatch.domain.valueobject.DeliveryId;
+import com.xavier.mozdeliveryapi.dispatch.domain.valueobject.DeliveryPersonId;
+import com.xavier.mozdeliveryapi.dispatch.domain.valueobject.DeliveryStatus;
 
 class DeliveryTest {
     
