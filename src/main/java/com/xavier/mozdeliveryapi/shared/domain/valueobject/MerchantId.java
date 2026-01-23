@@ -1,9 +1,7 @@
-package com.xavier.mozdeliveryapi.merchant.domain.valueobject;
+package com.xavier.mozdeliveryapi.shared.domain.valueobject;
 
 import java.util.Objects;
 import java.util.UUID;
-
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.ValueObject;
 
 /**
  * Value object representing a merchant identifier.

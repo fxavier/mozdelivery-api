@@ -10,8 +10,8 @@ import com.xavier.mozdeliveryapi.merchant.application.dto.MerchantRegistrationRe
 import com.xavier.mozdeliveryapi.merchant.application.usecase.port.MerchantRepository;
 import com.xavier.mozdeliveryapi.merchant.domain.entity.Merchant;
 import com.xavier.mozdeliveryapi.merchant.domain.valueobject.BusinessDetails;
-import com.xavier.mozdeliveryapi.merchant.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.shared.application.usecase.UseCase;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 
 /**
  * Application service for merchant registration.

@@ -2,9 +2,9 @@ package com.xavier.mozdeliveryapi.merchant.domain.event;
 
 import java.time.Instant;
 
-import com.xavier.mozdeliveryapi.merchant.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.merchant.domain.valueobject.Vertical;
 import com.xavier.mozdeliveryapi.shared.domain.event.DomainEvent;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 
 /**
  * Domain event fired when a new merchant is created.

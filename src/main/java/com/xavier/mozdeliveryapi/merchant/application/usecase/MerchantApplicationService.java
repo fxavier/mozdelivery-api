@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.xavier.mozdeliveryapi.merchant.application.dto.MerchantResponse;
 import com.xavier.mozdeliveryapi.merchant.application.usecase.port.MerchantRepository;
 import com.xavier.mozdeliveryapi.merchant.domain.entity.Merchant;
-import com.xavier.mozdeliveryapi.merchant.domain.valueobject.MerchantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.merchant.domain.valueobject.MerchantStatus;
 import com.xavier.mozdeliveryapi.merchant.domain.valueobject.Vertical;
 

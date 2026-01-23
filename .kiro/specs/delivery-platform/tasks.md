@@ -39,7 +39,7 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
     - _Requirements: 1.1, 1.3_
 
 - [ ] 2. Catalog and Product Management Module
-  - [ ] 2.1 Implement Catalog domain model
+  - [x] 2.1 Implement Catalog domain model
     - Create Catalog aggregate with categories and products
     - Implement catalog lifecycle management
     - Add catalog visibility and status controls
