@@ -1,8 +1,8 @@
 package com.xavier.mozdeliveryapi.order.application.usecase;
 
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.Vertical;
-
 import java.util.List;
+
+import com.xavier.mozdeliveryapi.merchant.domain.valueobject.Vertical;
 import com.xavier.mozdeliveryapi.order.domain.entity.Order;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.AgeVerification;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderItem;

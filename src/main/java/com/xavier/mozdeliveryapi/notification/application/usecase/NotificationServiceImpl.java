@@ -1,6 +1,6 @@
 package com.xavier.mozdeliveryapi.notification.application.usecase;
 
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public class NotificationServiceImpl implements NotificationService {
     
     @Override
     public Notification createNotification(
-            TenantId tenantId,
+            MerchantId merchantId,
             Recipient recipient,
             NotificationChannel channel,
             String templateId,
@@ -56,7 +56,7 @@ public class NotificationServiceImpl implements NotificationService {
         // Create the notification
         Notification notification = new Notification(
             NotificationId.generate(),
-            tenantId,
+            merchantId,
             recipient,
             channel,
             templateId,
@@ -113,8 +113,8 @@ public class NotificationServiceImpl implements NotificationService {
     }
     
     @Override
-    public List<Notification> getNotificationsForTenant(TenantId tenantId) {
-        return notificationRepository.findByTenantId(tenantId);
+    public List<Notification> getNotificationsForMerchant(MerchantId merchantId) {
+        return notificationRepository.findByMerchantId(merchantId);
     }
     
     @Override

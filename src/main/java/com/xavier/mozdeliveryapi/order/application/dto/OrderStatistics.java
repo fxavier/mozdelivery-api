@@ -3,15 +3,15 @@ package com.xavier.mozdeliveryapi.order.application.dto;
 import java.util.Map;
 
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
 
 /**
- * Statistics about orders for a tenant.
+ * Statistics about orders for a merchant.
  */
 public record OrderStatistics(
-    TenantId tenantId,
+    MerchantId merchantId,
     long totalOrders,
     Map<OrderStatus, Long> ordersByStatus,
     Money totalRevenue,
@@ -21,9 +21,9 @@ public record OrderStatistics(
     long ordersThisMonth
 ) {
     
-    public static OrderStatistics empty(TenantId tenantId, Currency currency) {
+    public static OrderStatistics empty(MerchantId merchantId, Currency currency) {
         return new OrderStatistics(
-            tenantId,
+            merchantId,
             0L,
             Map.of(),
             Money.zero(currency),

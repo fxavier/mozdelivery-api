@@ -11,7 +11,7 @@ import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationId;
 import com.xavier.mozdeliveryapi.notification.domain.exception.NotificationNotFoundException;
 import com.xavier.mozdeliveryapi.notification.application.usecase.port.NotificationRepository;
 import com.xavier.mozdeliveryapi.notification.application.usecase.NotificationService;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.notification.application.dto.NotificationResponse;
 import com.xavier.mozdeliveryapi.notification.application.dto.SendNotificationRequest;
 
@@ -35,11 +35,11 @@ public class NotificationApplicationServiceImpl implements NotificationApplicati
     
     @Override
     public NotificationResponse sendNotification(SendNotificationRequest request) {
-        TenantId tenantId = TenantId.of(request.tenantId());
+        MerchantId merchantId = MerchantId.of(request.tenantId());
         
         // Create the notification
         Notification notification = notificationService.createNotification(
-            tenantId,
+            merchantId,
             request.recipient(),
             request.channel(),
             request.templateId(),
@@ -68,9 +68,9 @@ public class NotificationApplicationServiceImpl implements NotificationApplicati
     
     @Override
     @Transactional(readOnly = true)
-    public List<NotificationResponse> getNotificationsForTenant(String tenantId) {
-        TenantId id = TenantId.of(tenantId);
-        List<Notification> notifications = notificationService.getNotificationsForTenant(id);
+    public List<NotificationResponse> getNotificationsForMerchant(String merchantId) {
+        MerchantId id = MerchantId.of(merchantId);
+        List<Notification> notifications = notificationService.getNotificationsForMerchant(id);
         
         return notifications.stream()
             .map(this::mapToResponse)
@@ -91,7 +91,7 @@ public class NotificationApplicationServiceImpl implements NotificationApplicati
     private NotificationResponse mapToResponse(Notification notification) {
         return new NotificationResponse(
             notification.getNotificationId().toString(),
-            notification.getTenantId().toString(),
+            notification.getMerchantId().toString(),
             notification.getRecipient(),
             notification.getChannel(),
             notification.getTemplateId(),

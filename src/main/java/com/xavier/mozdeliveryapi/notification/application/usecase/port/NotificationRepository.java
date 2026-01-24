@@ -3,11 +3,11 @@ package com.xavier.mozdeliveryapi.notification.application.usecase.port;
 import java.util.List;
 import java.util.Optional;
 
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
 import com.xavier.mozdeliveryapi.notification.domain.entity.Notification;
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationChannel;
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationId;
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationStatus;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 
 /**
  * Repository interface for notifications.
@@ -25,9 +25,9 @@ public interface NotificationRepository {
     Optional<Notification> findById(NotificationId id);
     
     /**
-     * Find notifications by tenant ID.
+     * Find notifications by merchant ID.
      */
-    List<Notification> findByTenantId(TenantId tenantId);
+    List<Notification> findByMerchantId(MerchantId merchantId);
     
     /**
      * Find notifications by status.
@@ -35,9 +35,9 @@ public interface NotificationRepository {
     List<Notification> findByStatus(NotificationStatus status);
     
     /**
-     * Find notifications by tenant and status.
+     * Find notifications by merchant and status.
      */
-    List<Notification> findByTenantIdAndStatus(TenantId tenantId, NotificationStatus status);
+    List<Notification> findByMerchantIdAndStatus(MerchantId merchantId, NotificationStatus status);
     
     /**
      * Find notifications by channel.

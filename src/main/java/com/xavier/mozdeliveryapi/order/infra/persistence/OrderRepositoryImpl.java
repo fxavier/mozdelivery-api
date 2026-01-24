@@ -7,12 +7,12 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
-import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
-import com.xavier.mozdeliveryapi.order.domain.entity.Order;
 import com.xavier.mozdeliveryapi.order.application.usecase.port.OrderRepository;
+import com.xavier.mozdeliveryapi.order.domain.entity.Order;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestTrackingToken;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
 
 /**
@@ -48,21 +48,21 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
     
     @Override
-    public List<Order> findByTenantId(TenantId tenantId) {
-        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+    public List<Order> findByMerchantId(MerchantId merchantId) {
+        Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         
-        return jpaRepository.findByTenantId(tenantId.value())
+        return jpaRepository.findByTenantId(merchantId.value())
             .stream()
             .map(mapper::toDomain)
             .collect(Collectors.toList());
     }
     
     @Override
-    public List<Order> findByTenantIdAndStatus(TenantId tenantId, OrderStatus status) {
-        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+    public List<Order> findByMerchantIdAndStatus(MerchantId merchantId, OrderStatus status) {
+        Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         Objects.requireNonNull(status, "Status cannot be null");
         
-        return jpaRepository.findByTenantIdAndStatus(tenantId.value(), status)
+        return jpaRepository.findByTenantIdAndStatus(merchantId.value(), status)
             .stream()
             .map(mapper::toDomain)
             .collect(Collectors.toList());
@@ -79,11 +79,11 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
     
     @Override
-    public List<Order> findByCustomerIdAndTenantId(CustomerId customerId, TenantId tenantId) {
+    public List<Order> findByCustomerIdAndMerchantId(CustomerId customerId, MerchantId merchantId) {
         Objects.requireNonNull(customerId, "Customer ID cannot be null");
-        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+        Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         
-        return jpaRepository.findByCustomerIdAndTenantId(customerId.value(), tenantId.value())
+        return jpaRepository.findByCustomerIdAndTenantId(customerId.value(), merchantId.value())
             .stream()
             .map(mapper::toDomain)
             .collect(Collectors.toList());
@@ -121,18 +121,18 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
     
     @Override
-    public long countByTenantId(TenantId tenantId) {
-        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+    public long countByMerchantId(MerchantId merchantId) {
+        Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         
-        return jpaRepository.countByTenantId(tenantId.value());
+        return jpaRepository.countByTenantId(merchantId.value());
     }
     
     @Override
-    public long countByTenantIdAndStatus(TenantId tenantId, OrderStatus status) {
-        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+    public long countByMerchantIdAndStatus(MerchantId merchantId, OrderStatus status) {
+        Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         Objects.requireNonNull(status, "Status cannot be null");
         
-        return jpaRepository.countByTenantIdAndStatus(tenantId.value(), status);
+        return jpaRepository.countByTenantIdAndStatus(merchantId.value(), status);
     }
     
     @Override
@@ -144,30 +144,30 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
     
     @Override
-    public List<Order> findGuestOrdersByTenantId(TenantId tenantId) {
-        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+    public List<Order> findGuestOrdersByMerchantId(MerchantId merchantId) {
+        Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         
-        return jpaRepository.findByTenantIdAndGuestInfoIsNotNull(tenantId.value())
+        return jpaRepository.findByTenantIdAndGuestInfoIsNotNull(merchantId.value())
             .stream()
             .map(mapper::toDomain)
             .collect(Collectors.toList());
     }
     
     @Override
-    public List<Order> findGuestOrdersByTenantIdAndStatus(TenantId tenantId, OrderStatus status) {
-        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+    public List<Order> findGuestOrdersByMerchantIdAndStatus(MerchantId merchantId, OrderStatus status) {
+        Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         Objects.requireNonNull(status, "Status cannot be null");
         
-        return jpaRepository.findByTenantIdAndStatusAndGuestInfoIsNotNull(tenantId.value(), status)
+        return jpaRepository.findByTenantIdAndStatusAndGuestInfoIsNotNull(merchantId.value(), status)
             .stream()
             .map(mapper::toDomain)
             .collect(Collectors.toList());
     }
     
     @Override
-    public long countGuestOrdersByTenantId(TenantId tenantId) {
-        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+    public long countGuestOrdersByMerchantId(MerchantId merchantId) {
+        Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         
-        return jpaRepository.countByTenantIdAndGuestInfoIsNotNull(tenantId.value());
+        return jpaRepository.countByTenantIdAndGuestInfoIsNotNull(merchantId.value());
     }
 }

@@ -1,19 +1,19 @@
 package com.xavier.mozdeliveryapi.order.application.usecase;
 
-import com.xavier.mozdeliveryapi.order.application.usecase.port.OrderRepository;
-import com.xavier.mozdeliveryapi.order.domain.entity.Order;
-import com.xavier.mozdeliveryapi.order.domain.exception.OrderNotFoundException;
-import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestInfo;
-import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestTrackingToken;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
-import java.util.Optional;
+import com.xavier.mozdeliveryapi.order.application.usecase.port.OrderRepository;
+import com.xavier.mozdeliveryapi.order.domain.entity.Order;
+import com.xavier.mozdeliveryapi.order.domain.exception.OrderNotFoundException;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestInfo;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestTrackingToken;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
 
 /**
  * Implementation of guest checkout service.
@@ -34,7 +34,7 @@ public class GuestCheckoutServiceImpl implements GuestCheckoutService {
     public Order createGuestOrder(GuestOrderCommand command) {
         Objects.requireNonNull(command, "Guest order command cannot be null");
         
-        logger.info("Creating guest order for tenant: {}", command.tenantId());
+        logger.info("Creating guest order for merchant: {}", command.merchantId());
         
         // Validate the command
         validateGuestOrderCreation(command);
@@ -45,7 +45,7 @@ public class GuestCheckoutServiceImpl implements GuestCheckoutService {
         // Create the order
         Order order = new Order(
             orderId,
-            command.tenantId(),
+            command.merchantId(),
             command.guestInfo(),
             command.items(),
             command.deliveryAddress(),
@@ -83,7 +83,7 @@ public class GuestCheckoutServiceImpl implements GuestCheckoutService {
     @Override
     public void validateGuestOrderCreation(GuestOrderCommand command) {
         Objects.requireNonNull(command, "Command cannot be null");
-        Objects.requireNonNull(command.tenantId(), "Tenant ID cannot be null");
+        Objects.requireNonNull(command.merchantId(), "Merchant ID cannot be null");
         Objects.requireNonNull(command.guestInfo(), "Guest info cannot be null");
         Objects.requireNonNull(command.items(), "Items cannot be null");
         Objects.requireNonNull(command.deliveryAddress(), "Delivery address cannot be null");
@@ -98,7 +98,7 @@ public class GuestCheckoutServiceImpl implements GuestCheckoutService {
             throw new IllegalArgumentException("Guest tracking token has expired");
         }
         
-        logger.debug("Guest order validation passed for tenant: {}", command.tenantId());
+        logger.debug("Guest order validation passed for merchant: {}", command.merchantId());
     }
     
     @Override
@@ -164,7 +164,7 @@ public class GuestCheckoutServiceImpl implements GuestCheckoutService {
         
         Order customerOrder = new Order(
             com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId.generate(),
-            order.getTenantId(),
+            order.getMerchantId(),
             customerIdVO,
             order.getItems(),
             order.getDeliveryAddress(),

@@ -14,7 +14,7 @@ import com.xavier.mozdeliveryapi.notification.domain.valueobject.Recipient;
 import com.xavier.mozdeliveryapi.order.domain.event.OrderCancelledEvent;
 import com.xavier.mozdeliveryapi.order.domain.event.OrderCreatedEvent;
 import com.xavier.mozdeliveryapi.order.domain.event.OrderStatusChangedEvent;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.order.domain.entity.Order;
 
 /**
@@ -40,7 +40,7 @@ public class OrderEventHandler {
         try {
             // Create SMS notification for order creation
             notificationService.createNotification(
-                event.tenantId(),
+                event.merchantId(),
                 Recipient.phone("customer_phone_" + event.customerId(), "Customer"),
                 NotificationChannel.SMS,
                 "order_created",
@@ -55,7 +55,7 @@ public class OrderEventHandler {
             
             // Create push notification for order creation
             notificationService.createNotification(
-                event.tenantId(),
+                event.merchantId(),
                 Recipient.deviceToken("device_token_" + event.customerId(), "Customer"),
                 NotificationChannel.PUSH_NOTIFICATION,
                 "order_created",
@@ -82,12 +82,12 @@ public class OrderEventHandler {
                    event.orderId(), event.oldStatus(), event.newStatus());
         
         try {
-            TenantId tenantId = tenantResolutionService.resolveTenantFromOrderId(event.orderId().toString());
+            MerchantId merchantId = tenantResolutionService.resolveMerchantFromOrderId(event.orderId().toString());
             String statusMessage = getStatusMessage(event.newStatus().toString());
             
             // Create SMS notification for status change
             notificationService.createNotification(
-                tenantId,
+                merchantId,
                 Recipient.phone("customer_phone_" + event.orderId(), "Customer"),
                 NotificationChannel.SMS,
                 "order_status_changed",
@@ -101,7 +101,7 @@ public class OrderEventHandler {
             
             // Create push notification for status change
             notificationService.createNotification(
-                tenantId,
+                merchantId,
                 Recipient.deviceToken("device_token_" + event.orderId(), "Customer"),
                 NotificationChannel.PUSH_NOTIFICATION,
                 "order_status_changed",
@@ -126,11 +126,11 @@ public class OrderEventHandler {
         logger.info("Handling OrderCancelledEvent for order: {}", event.orderId());
         
         try {
-            TenantId tenantId = tenantResolutionService.resolveTenantFromOrderId(event.orderId().toString());
+            MerchantId merchantId = tenantResolutionService.resolveMerchantFromOrderId(event.orderId().toString());
             
             // Create high priority notifications for order cancellation
             notificationService.createNotification(
-                tenantId,
+                merchantId,
                 Recipient.phone("customer_phone_" + event.orderId(), "Customer"),
                 NotificationChannel.SMS,
                 "order_status_changed",
@@ -143,7 +143,7 @@ public class OrderEventHandler {
             );
             
             notificationService.createNotification(
-                tenantId,
+                merchantId,
                 Recipient.deviceToken("device_token_" + event.orderId(), "Customer"),
                 NotificationChannel.PUSH_NOTIFICATION,
                 "order_status_changed",

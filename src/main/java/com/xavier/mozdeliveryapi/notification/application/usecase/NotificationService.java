@@ -3,13 +3,13 @@ package com.xavier.mozdeliveryapi.notification.application.usecase;
 import java.util.List;
 import java.util.Map;
 
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
 import com.xavier.mozdeliveryapi.notification.domain.entity.Notification;
 import com.xavier.mozdeliveryapi.notification.domain.entity.NotificationResult;
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationChannel;
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationId;
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationPriority;
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.Recipient;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 
 /**
  * Domain service for notification operations.
@@ -19,7 +19,7 @@ public interface NotificationService {
     /**
      * Create a new notification.
      * 
-     * @param tenantId the tenant ID
+     * @param merchantId the merchant ID
      * @param recipient the notification recipient
      * @param channel the notification channel
      * @param templateId the template ID
@@ -28,7 +28,7 @@ public interface NotificationService {
      * @return the created notification
      */
     Notification createNotification(
-        TenantId tenantId,
+        MerchantId merchantId,
         Recipient recipient,
         NotificationChannel channel,
         String templateId,
@@ -52,12 +52,12 @@ public interface NotificationService {
     int processPendingNotifications();
     
     /**
-     * Get notifications for a tenant.
+     * Get notifications for a merchant.
      * 
-     * @param tenantId the tenant ID
+     * @param merchantId the merchant ID
      * @return the list of notifications
      */
-    List<Notification> getNotificationsForTenant(TenantId tenantId);
+    List<Notification> getNotificationsForMerchant(MerchantId merchantId);
     
     /**
      * Cancel a notification.

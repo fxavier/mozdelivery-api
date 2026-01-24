@@ -3,10 +3,10 @@ package com.xavier.mozdeliveryapi.order.domain;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.PaymentMethod;
 import com.xavier.mozdeliveryapi.order.domain.entity.Order;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
@@ -21,7 +21,7 @@ public class TestOrderFactory {
     
     public static Order createOrderWithItems(List<OrderItem> items) {
         OrderId orderId = OrderId.generate();
-        TenantId tenantId = TenantId.generate();
+        MerchantId merchantId = MerchantId.generate();
         CustomerId customerId = CustomerId.generate();
         
         DeliveryAddress address = DeliveryAddress.of(
@@ -36,7 +36,7 @@ public class TestOrderFactory {
         
         PaymentInfo paymentInfo = PaymentInfo.pending(PaymentMethod.MPESA, total);
         
-        return new Order(orderId, tenantId, customerId, items, address, paymentInfo);
+        return new Order(orderId, merchantId, customerId, items, address, paymentInfo);
     }
     
     public static Order createValidOrder() {

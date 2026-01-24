@@ -18,7 +18,7 @@ import com.xavier.mozdeliveryapi.order.application.usecase.port.OrderRepository;
 import com.xavier.mozdeliveryapi.order.domain.entity.Order;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestInfo;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestTrackingToken;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 
 /**
  * Unit tests for GuestCheckoutService implementation.
@@ -110,7 +110,7 @@ class GuestCheckoutServiceTest {
     void shouldThrowExceptionForInvalidGuestOrderCommand() {
         // Given - command with empty items
         GuestCheckoutService.GuestOrderCommand invalidCommand = new GuestCheckoutService.GuestOrderCommand(
-            TenantId.generate(),
+            MerchantId.generate(),
             createValidGuestInfo(),
             java.util.Collections.emptyList(), // Empty items
             createValidDeliveryAddress(),
@@ -129,7 +129,7 @@ class GuestCheckoutServiceTest {
     
     private GuestCheckoutService.GuestOrderCommand createValidGuestOrderCommand() {
         return new GuestCheckoutService.GuestOrderCommand(
-            TenantId.generate(),
+            MerchantId.generate(),
             createValidGuestInfo(),
             java.util.List.of(createValidOrderItem()),
             createValidDeliveryAddress(),

@@ -87,7 +87,7 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
     - **Validates: Requirements 4A**
 
 - [ ] 4. Update Order Management for Multi-Merchant
-  - [ ] 4.1 Adapt Order entity for merchant-specific orders
+  - [x] 4.1 Adapt Order entity for merchant-specific orders
     - Update Order aggregate to reference MerchantId instead of TenantId
     - Add support for guest orders with GuestInfo
     - Implement order routing to specific merchants

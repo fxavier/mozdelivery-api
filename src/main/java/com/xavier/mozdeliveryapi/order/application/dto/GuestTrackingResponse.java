@@ -7,16 +7,16 @@ import com.xavier.mozdeliveryapi.order.domain.entity.Order;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestInfo;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
 
 /**
  * Response for guest order tracking.
  */
 public record GuestTrackingResponse(
     OrderId orderId,
-    TenantId tenantId,
+    MerchantId merchantId,
     String merchantName,
     GuestContactInfo guestInfo,
     List<OrderItemSummary> items,
@@ -44,7 +44,7 @@ public record GuestTrackingResponse(
         
         return new GuestTrackingResponse(
             order.getOrderId(),
-            order.getTenantId(),
+            order.getMerchantId(),
             merchantName,
             GuestContactInfo.from(order.getGuestInfo()),
             order.getItems().stream()

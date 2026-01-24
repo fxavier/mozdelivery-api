@@ -7,10 +7,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.PaymentMethod;
 import com.xavier.mozdeliveryapi.order.application.usecase.OrderWorkflowService;
 import com.xavier.mozdeliveryapi.order.application.usecase.OrderWorkflowServiceImpl;
@@ -184,7 +184,7 @@ class OrderWorkflowServiceTest {
     
     private Order createOrderWithPaymentMethod(PaymentMethod paymentMethod) {
         OrderId orderId = OrderId.generate();
-        TenantId tenantId = TenantId.generate();
+        MerchantId merchantId = MerchantId.generate();
         CustomerId customerId = CustomerId.generate();
         
         OrderItem item = OrderItem.of("product-1", "Test Product", 1, 
@@ -198,6 +198,6 @@ class OrderWorkflowServiceTest {
         PaymentInfo paymentInfo = PaymentInfo.pending(paymentMethod, 
             Money.of(BigDecimal.valueOf(10.00), Currency.USD));
         
-        return new Order(orderId, tenantId, customerId, items, address, paymentInfo);
+        return new Order(orderId, merchantId, customerId, items, address, paymentInfo);
     }
 }

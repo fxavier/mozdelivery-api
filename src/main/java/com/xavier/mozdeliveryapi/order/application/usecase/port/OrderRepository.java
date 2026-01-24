@@ -8,8 +8,8 @@ import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestTrackingToken;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
 import com.xavier.mozdeliveryapi.shared.application.usecase.port.Repository;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
 
 /**
  * Repository interface for Order aggregate.
@@ -27,14 +27,14 @@ public interface OrderRepository extends Repository<Order, OrderId> {
     Optional<Order> findById(OrderId orderId);
     
     /**
-     * Find all orders for a specific tenant.
+     * Find all orders for a specific merchant.
      */
-    List<Order> findByTenantId(TenantId tenantId);
+    List<Order> findByMerchantId(MerchantId merchantId);
     
     /**
-     * Find orders by tenant and status.
+     * Find orders by merchant and status.
      */
-    List<Order> findByTenantIdAndStatus(TenantId tenantId, OrderStatus status);
+    List<Order> findByMerchantIdAndStatus(MerchantId merchantId, OrderStatus status);
     
     /**
      * Find orders by customer.
@@ -42,9 +42,9 @@ public interface OrderRepository extends Repository<Order, OrderId> {
     List<Order> findByCustomerId(CustomerId customerId);
     
     /**
-     * Find orders by customer and tenant.
+     * Find orders by customer and merchant.
      */
-    List<Order> findByCustomerIdAndTenantId(CustomerId customerId, TenantId tenantId);
+    List<Order> findByCustomerIdAndMerchantId(CustomerId customerId, MerchantId merchantId);
     
     /**
      * Find orders by status.
@@ -57,14 +57,14 @@ public interface OrderRepository extends Repository<Order, OrderId> {
     Optional<Order> findByGuestTrackingToken(GuestTrackingToken token);
     
     /**
-     * Find all guest orders for a tenant.
+     * Find all guest orders for a merchant.
      */
-    List<Order> findGuestOrdersByTenantId(TenantId tenantId);
+    List<Order> findGuestOrdersByMerchantId(MerchantId merchantId);
     
     /**
-     * Find guest orders by tenant and status.
+     * Find guest orders by merchant and status.
      */
-    List<Order> findGuestOrdersByTenantIdAndStatus(TenantId tenantId, OrderStatus status);
+    List<Order> findGuestOrdersByMerchantIdAndStatus(MerchantId merchantId, OrderStatus status);
     
     /**
      * Check if an order exists.
@@ -77,17 +77,17 @@ public interface OrderRepository extends Repository<Order, OrderId> {
     void deleteById(OrderId orderId);
     
     /**
-     * Count orders by tenant.
+     * Count orders by merchant.
      */
-    long countByTenantId(TenantId tenantId);
+    long countByMerchantId(MerchantId merchantId);
     
     /**
-     * Count orders by tenant and status.
+     * Count orders by merchant and status.
      */
-    long countByTenantIdAndStatus(TenantId tenantId, OrderStatus status);
+    long countByMerchantIdAndStatus(MerchantId merchantId, OrderStatus status);
     
     /**
-     * Count guest orders by tenant.
+     * Count guest orders by merchant.
      */
-    long countGuestOrdersByTenantId(TenantId tenantId);
+    long countGuestOrdersByMerchantId(MerchantId merchantId);
 }

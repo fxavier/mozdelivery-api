@@ -6,6 +6,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import com.xavier.mozdeliveryapi.shared.domain.entity.AggregateRoot;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.order.domain.event.OrderCancelledEvent;
 import com.xavier.mozdeliveryapi.order.domain.event.OrderCreatedEvent;
 import com.xavier.mozdeliveryapi.order.domain.event.OrderStatusChangedEvent;
@@ -16,19 +21,15 @@ import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestInfo;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderItem;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.PaymentInfo;
-import com.xavier.mozdeliveryapi.shared.domain.entity.AggregateRoot;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
 
 /**
  * Order aggregate root representing a customer order.
+ * Supports both registered customers and guest orders.
  */
 public class Order extends AggregateRoot<OrderId> {
     
     private final OrderId id;
-    private final TenantId tenantId;
+    private final MerchantId merchantId;
     private final CustomerId customerId; // null for guest orders
     private final GuestInfo guestInfo; // null for registered customer orders
     private final List<OrderItem> items;
@@ -41,11 +42,11 @@ public class Order extends AggregateRoot<OrderId> {
     private Instant updatedAt;
     
     // Constructor for creating new registered customer order
-    public Order(OrderId id, TenantId tenantId, CustomerId customerId, 
+    public Order(OrderId id, MerchantId merchantId, CustomerId customerId, 
                  List<OrderItem> items, DeliveryAddress deliveryAddress, 
                  PaymentInfo paymentInfo) {
         this.id = Objects.requireNonNull(id, "Order ID cannot be null");
-        this.tenantId = Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+        this.merchantId = Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         this.customerId = Objects.requireNonNull(customerId, "Customer ID cannot be null");
         this.guestInfo = null; // Not a guest order
         this.items = validateItems(items);
@@ -63,15 +64,15 @@ public class Order extends AggregateRoot<OrderId> {
         }
         
         // Register domain event
-        registerEvent(OrderCreatedEvent.of(id, tenantId, customerId, totalAmount));
+        registerEvent(OrderCreatedEvent.of(id, merchantId, customerId, totalAmount));
     }
     
     // Constructor for creating new guest order
-    public Order(OrderId id, TenantId tenantId, GuestInfo guestInfo,
+    public Order(OrderId id, MerchantId merchantId, GuestInfo guestInfo,
                  List<OrderItem> items, DeliveryAddress deliveryAddress, 
                  PaymentInfo paymentInfo) {
         this.id = Objects.requireNonNull(id, "Order ID cannot be null");
-        this.tenantId = Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+        this.merchantId = Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         this.customerId = null; // Guest order
         this.guestInfo = Objects.requireNonNull(guestInfo, "Guest info cannot be null");
         this.items = validateItems(items);
@@ -89,16 +90,16 @@ public class Order extends AggregateRoot<OrderId> {
         }
         
         // Register domain event for guest order
-        registerEvent(OrderCreatedEvent.ofGuest(id, tenantId, guestInfo, totalAmount));
+        registerEvent(OrderCreatedEvent.ofGuest(id, merchantId, guestInfo, totalAmount));
     }
     
     // Constructor for reconstituting from persistence
-    public Order(OrderId id, TenantId tenantId, CustomerId customerId, GuestInfo guestInfo,
+    public Order(OrderId id, MerchantId merchantId, CustomerId customerId, GuestInfo guestInfo,
                  List<OrderItem> items, DeliveryAddress deliveryAddress, 
                  OrderStatus status, PaymentInfo paymentInfo, Money totalAmount, 
                  Currency currency, Instant createdAt, Instant updatedAt) {
         this.id = Objects.requireNonNull(id, "Order ID cannot be null");
-        this.tenantId = Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+        this.merchantId = Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         this.customerId = customerId; // Can be null for guest orders
         this.guestInfo = guestInfo; // Can be null for registered customer orders
         this.items = validateItems(items);
@@ -211,19 +212,42 @@ public class Order extends AggregateRoot<OrderId> {
     public boolean isCompleted() {
         return status == OrderStatus.DELIVERED;
     }
-
+    
     /**
-     * Check if the order was placed by a guest.
+     * Check if this is a guest order.
      */
     public boolean isGuestOrder() {
         return guestInfo != null;
     }
-
+    
     /**
-     * Check if the order was placed by a registered customer.
+     * Check if this is a registered customer order.
      */
     public boolean isRegisteredCustomerOrder() {
         return customerId != null;
+    }
+    
+    /**
+     * Get the customer identifier (either CustomerId or guest tracking token).
+     */
+    public String getCustomerIdentifier() {
+        if (isGuestOrder()) {
+            return guestInfo.trackingToken().getValue();
+        } else {
+            return customerId.value().toString();
+        }
+    }
+    
+    /**
+     * Get the customer contact information.
+     */
+    public String getCustomerContact() {
+        if (isGuestOrder()) {
+            return guestInfo.contactPhone();
+        } else {
+            // For registered customers, this would come from customer service
+            return "N/A"; // Placeholder
+        }
     }
     
     /**
@@ -265,7 +289,7 @@ public class Order extends AggregateRoot<OrderId> {
     
     // Getters
     public OrderId getOrderId() { return id; }
-    public TenantId getTenantId() { return tenantId; }
+    public MerchantId getMerchantId() { return merchantId; }
     public CustomerId getCustomerId() { return customerId; }
     public GuestInfo getGuestInfo() { return guestInfo; }
     public List<OrderItem> getItems() { return Collections.unmodifiableList(items); }

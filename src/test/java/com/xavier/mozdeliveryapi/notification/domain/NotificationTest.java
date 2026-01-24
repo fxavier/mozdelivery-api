@@ -5,7 +5,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.notification.domain.entity.Notification;
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationChannel;
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationId;
@@ -22,7 +22,7 @@ class NotificationTest {
     void shouldCreateNotificationWithCorrectInitialState() {
         // Given
         NotificationId id = NotificationId.generate();
-        TenantId tenantId = TenantId.of("550e8400-e29b-41d4-a716-446655440000");
+        MerchantId merchantId = MerchantId.of("550e8400-e29b-41d4-a716-446655440000");
         Recipient recipient = Recipient.phone("+258123456789", "Test Customer");
         NotificationChannel channel = NotificationChannel.SMS;
         String templateId = "order_created";
@@ -33,13 +33,13 @@ class NotificationTest {
         
         // When
         Notification notification = new Notification(
-            id, tenantId, recipient, channel, templateId, 
+            id, merchantId, recipient, channel, templateId, 
             subject, body, parameters, priority
         );
         
         // Then
         assertThat(notification.getNotificationId()).isEqualTo(id);
-        assertThat(notification.getTenantId()).isEqualTo(tenantId);
+        assertThat(notification.getMerchantId()).isEqualTo(merchantId);
         assertThat(notification.getRecipient()).isEqualTo(recipient);
         assertThat(notification.getChannel()).isEqualTo(channel);
         assertThat(notification.getTemplateId()).isEqualTo(templateId);
@@ -111,7 +111,7 @@ class NotificationTest {
     private Notification createTestNotification() {
         return new Notification(
             NotificationId.generate(),
-            TenantId.of("550e8400-e29b-41d4-a716-446655440000"),
+            MerchantId.of("550e8400-e29b-41d4-a716-446655440000"),
             Recipient.phone("+258123456789", "Test Customer"),
             NotificationChannel.SMS,
             "test_template",

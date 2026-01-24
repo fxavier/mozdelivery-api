@@ -6,9 +6,9 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 
-import com.xavier.mozdeliveryapi.tenant.domain.entity.Tenant;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
-import com.xavier.mozdeliveryapi.tenant.application.usecase.port.TenantRepository;
+import com.xavier.mozdeliveryapi.merchant.domain.entity.Merchant;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
+import com.xavier.mozdeliveryapi.merchant.application.usecase.port.MerchantRepository;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
@@ -23,7 +23,7 @@ import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderItem;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.PaymentInfo;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.ValidationResult;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.Vertical;
+import com.xavier.mozdeliveryapi.merchant.domain.valueobject.Vertical;
 
 /**
  * Implementation of OrderService with business logic.
@@ -32,13 +32,13 @@ import com.xavier.mozdeliveryapi.tenant.domain.valueobject.Vertical;
 public class OrderServiceImpl implements OrderService {
     
     private final OrderRepository orderRepository;
-    private final TenantRepository tenantRepository;
+    private final MerchantRepository merchantRepository;
     private final VerticalBusinessRulesEngine verticalBusinessRulesEngine;
     
-    public OrderServiceImpl(OrderRepository orderRepository, TenantRepository tenantRepository,
+    public OrderServiceImpl(OrderRepository orderRepository, MerchantRepository merchantRepository,
                            VerticalBusinessRulesEngine verticalBusinessRulesEngine) {
         this.orderRepository = Objects.requireNonNull(orderRepository, "Order repository cannot be null");
-        this.tenantRepository = Objects.requireNonNull(tenantRepository, "Tenant repository cannot be null");
+        this.merchantRepository = Objects.requireNonNull(merchantRepository, "Merchant repository cannot be null");
         this.verticalBusinessRulesEngine = Objects.requireNonNull(verticalBusinessRulesEngine, 
             "Vertical business rules engine cannot be null");
     }
@@ -56,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
         // Create order
         Order order = new Order(
             OrderId.generate(),
-            command.tenantId(),
+            command.merchantId(),
             command.customerId(),
             command.items(),
             command.deliveryAddress(),
@@ -98,17 +98,17 @@ public class OrderServiceImpl implements OrderService {
     }
     
     @Override
-    public List<Order> findOrdersByTenant(TenantId tenantId, OrderFilter filter) {
-        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+    public List<Order> findOrdersByMerchant(MerchantId merchantId, OrderFilter filter) {
+        Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         Objects.requireNonNull(filter, "Filter cannot be null");
         
         // For now, implement basic filtering
         if (filter.status().isPresent()) {
-            return orderRepository.findByTenantIdAndStatus(tenantId, filter.status().get());
+            return orderRepository.findByMerchantIdAndStatus(merchantId, filter.status().get());
         } else if (filter.customerId().isPresent()) {
-            return orderRepository.findByCustomerIdAndTenantId(filter.customerId().get(), tenantId);
+            return orderRepository.findByCustomerIdAndMerchantId(filter.customerId().get(), merchantId);
         } else {
-            return orderRepository.findByTenantId(tenantId);
+            return orderRepository.findByMerchantId(merchantId);
         }
     }
     
@@ -116,12 +116,12 @@ public class OrderServiceImpl implements OrderService {
     public void validateOrderCreation(CreateOrderCommand command) {
         Objects.requireNonNull(command, "Command cannot be null");
         
-        // Validate tenant exists and can process orders
-        Tenant tenant = tenantRepository.findById(command.tenantId())
-            .orElseThrow(() -> new IllegalArgumentException("Tenant not found: " + command.tenantId()));
+        // Validate merchant exists and can process orders
+        Merchant merchant = merchantRepository.findById(command.merchantId())
+            .orElseThrow(() -> new IllegalArgumentException("Merchant not found: " + command.merchantId()));
         
-        if (!tenant.canProcessOrders()) {
-            throw new IllegalArgumentException("Tenant cannot process orders: " + tenant.getStatus());
+        if (!merchant.canProcessOrders()) {
+            throw new IllegalArgumentException("Merchant cannot process orders: " + merchant.getStatus());
         }
         
         // Validate all items have the same currency
@@ -134,7 +134,7 @@ public class OrderServiceImpl implements OrderService {
         
         // Apply vertical-specific validation
         ValidationResult verticalValidation = verticalBusinessRulesEngine.validateOrderItems(
-            command.items(), tenant.getVertical());
+            command.items(), merchant.getVertical());
         
         if (!verticalValidation.isValid()) {
             throw new IllegalArgumentException("Vertical validation failed: " + 
@@ -148,8 +148,8 @@ public class OrderServiceImpl implements OrderService {
     }
     
     @Override
-    public Money calculateDeliveryFee(TenantId tenantId, DeliveryAddress address, List<OrderItem> items) {
-        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+    public Money calculateDeliveryFee(MerchantId merchantId, DeliveryAddress address, List<OrderItem> items) {
+        Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         Objects.requireNonNull(address, "Address cannot be null");
         Objects.requireNonNull(items, "Items cannot be null");
         

@@ -1,25 +1,19 @@
 package com.xavier.mozdeliveryapi.order.application.dto;
 
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.ValueObject;
-
 import java.util.List;
 import java.util.Objects;
 
 import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.PaymentMethod;
-import com.xavier.mozdeliveryapi.dispatch.domain.entity.Delivery;
-import com.xavier.mozdeliveryapi.geospatial.domain.valueobject.City;
-import com.xavier.mozdeliveryapi.order.domain.entity.Order;
-import com.xavier.mozdeliveryapi.payment.domain.entity.Payment;
-import com.xavier.mozdeliveryapi.tenant.domain.entity.Tenant;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.ValueObject;
 
 /**
  * Request for creating a new order.
  */
 public record CreateOrderRequest(
-    TenantId tenantId,
+    MerchantId merchantId,
     CustomerId customerId,
     List<OrderItemRequest> items,
     DeliveryAddressRequest deliveryAddress,
@@ -28,7 +22,7 @@ public record CreateOrderRequest(
 ) implements ValueObject {
     
     public CreateOrderRequest {
-        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+        Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         Objects.requireNonNull(customerId, "Customer ID cannot be null");
         Objects.requireNonNull(items, "Items cannot be null");
         Objects.requireNonNull(deliveryAddress, "Delivery address cannot be null");

@@ -3,16 +3,16 @@ package com.xavier.mozdeliveryapi.order.application.dto;
 import java.time.Instant;
 import java.util.List;
 
+import com.xavier.mozdeliveryapi.order.domain.entity.Order;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.DeliveryAddress;
-import com.xavier.mozdeliveryapi.order.domain.entity.Order;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderItem;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.PaymentInfo;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.PaymentMethod;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.PaymentStatus;
 
@@ -21,7 +21,7 @@ import com.xavier.mozdeliveryapi.shared.domain.valueobject.PaymentStatus;
  */
 public record OrderResponse(
     OrderId orderId,
-    TenantId tenantId,
+    MerchantId merchantId,
     CustomerId customerId,
     List<OrderItemResponse> items,
     DeliveryAddressResponse deliveryAddress,
@@ -36,7 +36,7 @@ public record OrderResponse(
     public static OrderResponse from(Order order) {
         return new OrderResponse(
             order.getOrderId(),
-            order.getTenantId(),
+            order.getMerchantId(),
             order.getCustomerId(),
             order.getItems().stream()
                 .map(OrderItemResponse::from)

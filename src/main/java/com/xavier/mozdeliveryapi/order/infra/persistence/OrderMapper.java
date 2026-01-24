@@ -12,7 +12,7 @@ import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestInfo;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestTrackingToken;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderItem;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.PaymentInfo;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
@@ -28,7 +28,7 @@ public class OrderMapper {
     public OrderEntity toEntity(Order order) {
         return new OrderEntity(
             order.getOrderId().value(),
-            order.getTenantId().value(),
+            order.getMerchantId().value(),
             order.isRegisteredCustomerOrder() ? order.getCustomerId().value() : null,
             order.isGuestOrder() ? mapGuestInfo(order.getGuestInfo()) : null,
             mapItems(order.getItems()),
@@ -45,7 +45,7 @@ public class OrderMapper {
     public Order toDomain(OrderEntity entity) {
         return new Order(
             OrderId.of(entity.getId()),
-            TenantId.of(entity.getTenantId()),
+            MerchantId.of(entity.getTenantId()),
             entity.getCustomerId() != null ? CustomerId.of(entity.getCustomerId()) : null,
             entity.getGuestInfo() != null ? mapGuestInfoFromData(entity.getGuestInfo()) : null,
             mapItemsFromData(entity.getItems()),
