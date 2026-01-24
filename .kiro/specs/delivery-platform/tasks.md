@@ -76,7 +76,7 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
     - Add guest-to-registered user conversion
     - _Requirements: 4A_
 
-  - [ ] 3.3 Create Public Browsing APIs
+  - [x] 3.3 Create Public Browsing APIs
     - Implement public merchant discovery endpoints
     - Create catalog and product browsing APIs
     - Add location-based merchant filtering

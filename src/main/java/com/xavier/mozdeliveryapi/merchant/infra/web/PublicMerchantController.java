@@ -20,7 +20,7 @@ import com.xavier.mozdeliveryapi.merchant.domain.valueobject.Vertical;
  * REST controller for public merchant browsing (no authentication required).
  */
 @RestController
-@RequestMapping("/api/public/merchants")
+@RequestMapping("/api/public/merchants-legacy")
 @CrossOrigin(origins = "*")
 public class PublicMerchantController {
     
