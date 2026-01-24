@@ -57,7 +57,7 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
     - Implement real-time catalog updates
     - _Requirements: 3A, 13_
 
-  - [ ]* 2.4 Write property test for catalog data isolation
+  - [x] 2.4 Write property test for catalog data isolation
     - **Property: Catalog Data Isolation**
     - **Validates: Requirements 3A**
 
