@@ -1,6 +1,6 @@
 package com.xavier.mozdeliveryapi.notification.infra.persistence;
 
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -36,9 +36,9 @@ public class NotificationRepositoryImpl implements NotificationRepository {
     }
     
     @Override
-    public List<Notification> findByTenantId(TenantId tenantId) {
+    public List<Notification> findByMerchantId(MerchantId merchantId) {
         return notifications.values().stream()
-            .filter(notification -> notification.getTenantId().equals(tenantId))
+            .filter(notification -> notification.getMerchantId().equals(merchantId))
             .toList();
     }
     
@@ -50,9 +50,9 @@ public class NotificationRepositoryImpl implements NotificationRepository {
     }
     
     @Override
-    public List<Notification> findByTenantIdAndStatus(TenantId tenantId, NotificationStatus status) {
+    public List<Notification> findByMerchantIdAndStatus(MerchantId merchantId, NotificationStatus status) {
         return notifications.values().stream()
-            .filter(notification -> notification.getTenantId().equals(tenantId) && 
+            .filter(notification -> notification.getMerchantId().equals(merchantId) && 
                                   notification.getStatus() == status)
             .toList();
     }

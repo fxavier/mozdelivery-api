@@ -1,23 +1,22 @@
 package com.xavier.mozdeliveryapi.order.application.dto;
 
-import com.xavier.mozdeliveryapi.order.domain.entity.Order;
-import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestInfo;
-import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestTrackingToken;
-import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
-
 import java.time.Instant;
 import java.util.List;
+
+import com.xavier.mozdeliveryapi.order.domain.entity.Order;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestInfo;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
 
 /**
  * Response for guest order creation and tracking.
  */
 public record GuestOrderResponse(
     OrderId orderId,
-    TenantId tenantId,
+    MerchantId merchantId,
     GuestInfoResponse guestInfo,
     List<OrderItemResponse> items,
     DeliveryAddressResponse deliveryAddress,
@@ -42,7 +41,7 @@ public record GuestOrderResponse(
         
         return new GuestOrderResponse(
             order.getOrderId(),
-            order.getTenantId(),
+            order.getMerchantId(),
             GuestInfoResponse.from(guestInfo),
             order.getItems().stream()
                 .map(item -> new OrderItemResponse(

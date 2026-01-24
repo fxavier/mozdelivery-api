@@ -26,12 +26,12 @@ public interface NotificationApplicationService {
     NotificationResponse getNotification(String notificationId);
     
     /**
-     * Get notifications for a tenant.
+     * Get notifications for a merchant.
      * 
-     * @param tenantId the tenant ID
+     * @param merchantId the merchant ID
      * @return the list of notification responses
      */
-    List<NotificationResponse> getNotificationsForTenant(String tenantId);
+    List<NotificationResponse> getNotificationsForMerchant(String merchantId);
     
     /**
      * Cancel a notification.

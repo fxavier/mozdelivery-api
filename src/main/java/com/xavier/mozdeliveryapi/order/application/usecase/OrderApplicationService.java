@@ -1,9 +1,7 @@
 package com.xavier.mozdeliveryapi.order.application.usecase;
 
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
-
 import java.util.List;
+
 import com.xavier.mozdeliveryapi.order.application.dto.CancellationRequest;
 import com.xavier.mozdeliveryapi.order.application.dto.CreateOrderRequest;
 import com.xavier.mozdeliveryapi.order.application.dto.OrderResponse;
@@ -12,6 +10,8 @@ import com.xavier.mozdeliveryapi.order.application.dto.PaymentConfirmationReques
 import com.xavier.mozdeliveryapi.order.application.dto.PaymentFailureRequest;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderFilter;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
 
 /**
  * Application service for order management operations.
@@ -29,9 +29,9 @@ public interface OrderApplicationService {
     OrderResponse getOrder(OrderId orderId);
     
     /**
-     * Get orders for a tenant with filtering.
+     * Get orders for a merchant with filtering.
      */
-    List<OrderResponse> getOrdersForTenant(TenantId tenantId, OrderFilter filter);
+    List<OrderResponse> getOrdersForMerchant(MerchantId merchantId, OrderFilter filter);
     
     /**
      * Update order status.
@@ -54,7 +54,7 @@ public interface OrderApplicationService {
     OrderResponse failPayment(OrderId orderId, PaymentFailureRequest request);
     
     /**
-     * Get order statistics for a tenant.
+     * Get order statistics for a merchant.
      */
-    OrderStatistics getOrderStatistics(TenantId tenantId);
+    OrderStatistics getOrderStatistics(MerchantId merchantId);
 }

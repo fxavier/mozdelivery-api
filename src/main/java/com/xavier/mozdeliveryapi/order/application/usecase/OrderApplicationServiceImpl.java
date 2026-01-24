@@ -18,7 +18,7 @@ import com.xavier.mozdeliveryapi.order.application.usecase.OrderService;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.PaymentInfo;
 import com.xavier.mozdeliveryapi.shared.application.usecase.port.DomainEventPublisher;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
@@ -79,11 +79,11 @@ public class OrderApplicationServiceImpl implements OrderApplicationService {
     
     @Override
     @Transactional(readOnly = true)
-    public List<OrderResponse> getOrdersForTenant(TenantId tenantId, OrderFilter filter) {
-        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+    public List<OrderResponse> getOrdersForMerchant(MerchantId merchantId, OrderFilter filter) {
+        Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         Objects.requireNonNull(filter, "Filter cannot be null");
         
-        List<Order> orders = orderService.findOrdersByTenant(tenantId, filter);
+        List<Order> orders = orderService.findOrdersByMerchant(merchantId, filter);
         
         return orders.stream()
             .map(OrderResponse::from)
@@ -163,12 +163,12 @@ public class OrderApplicationServiceImpl implements OrderApplicationService {
     
     @Override
     @Transactional(readOnly = true)
-    public OrderStatistics getOrderStatistics(TenantId tenantId) {
-        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+    public OrderStatistics getOrderStatistics(MerchantId merchantId) {
+        Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         
         // For now, return empty statistics
         // This can be enhanced with actual calculations
-        return OrderStatistics.empty(tenantId, Currency.USD);
+        return OrderStatistics.empty(merchantId, Currency.USD);
     }
     
     private CreateOrderCommand convertToCommand(CreateOrderRequest request) {
@@ -193,7 +193,7 @@ public class OrderApplicationServiceImpl implements OrderApplicationService {
         );
         
         return new CreateOrderCommand(
-            request.tenantId(),
+            request.merchantId(),
             request.customerId(),
             items,
             address,

@@ -16,10 +16,8 @@ import com.xavier.mozdeliveryapi.dispatch.domain.event.DeliveryLocationUpdatedEv
 import com.xavier.mozdeliveryapi.dispatch.domain.event.DeliveryStatusChangedEvent;
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationChannel;
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationPriority;
-import com.xavier.mozdeliveryapi.notification.application.usecase.NotificationService;
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.Recipient;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
-import com.xavier.mozdeliveryapi.dispatch.domain.entity.Delivery;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 
 /**
  * Event handler for delivery-related events that trigger notifications.
@@ -42,9 +40,11 @@ public class DeliveryEventHandler {
         logger.info("Handling DeliveryAssignedEvent for delivery: {}", event.deliveryId());
         
         try {
+            MerchantId merchantId = tenantResolutionService.resolveMerchantFromOrderId(event.orderId().toString());
+            
             // Notify customer that delivery has been assigned
             notificationService.createNotification(
-                event.tenantId(),
+                merchantId,
                 Recipient.phone("customer_phone_" + event.orderId(), "Customer"),
                 NotificationChannel.SMS,
                 "order_status_changed",
@@ -58,7 +58,7 @@ public class DeliveryEventHandler {
             
             // Notify delivery person about new assignment
             notificationService.createNotification(
-                event.tenantId(),
+                merchantId,
                 Recipient.deviceToken("delivery_device_" + event.deliveryPersonId(), "Delivery Person"),
                 NotificationChannel.PUSH_NOTIFICATION,
                 "order_status_changed",
@@ -83,13 +83,13 @@ public class DeliveryEventHandler {
         logger.info("Handling DeliveryCompletedEvent for delivery: {}", event.deliveryId());
         
         try {
-            TenantId tenantId = tenantResolutionService.resolveTenantFromOrderId(event.orderId().toString());
+            MerchantId merchantId = tenantResolutionService.resolveMerchantFromOrderId(event.orderId().toString());
             String deliveryTime = LocalDateTime.ofInstant(event.occurredOn(), ZoneId.systemDefault())
                 .format(DateTimeFormatter.ofPattern("HH:mm"));
             
             // Create SMS notification for delivery completion
             notificationService.createNotification(
-                tenantId,
+                merchantId,
                 Recipient.phone("customer_phone_" + event.orderId(), "Customer"),
                 NotificationChannel.SMS,
                 "delivery_completed",
@@ -102,7 +102,7 @@ public class DeliveryEventHandler {
             
             // Create push notification for delivery completion
             notificationService.createNotification(
-                tenantId,
+                merchantId,
                 Recipient.deviceToken("device_token_" + event.orderId(), "Customer"),
                 NotificationChannel.PUSH_NOTIFICATION,
                 "delivery_completed",
@@ -128,13 +128,13 @@ public class DeliveryEventHandler {
                    event.deliveryId(), event.newStatus());
         
         try {
-            TenantId tenantId = tenantResolutionService.resolveTenantFromOrderId(event.orderId().toString());
+            MerchantId merchantId = tenantResolutionService.resolveMerchantFromOrderId(event.orderId().toString());
             String statusMessage = getDeliveryStatusMessage(event.newStatus().toString());
             
             // Only send notifications for significant status changes
             if (isSignificantStatusChange(event.newStatus().toString())) {
                 notificationService.createNotification(
-                    tenantId,
+                    merchantId,
                     Recipient.phone("customer_phone_" + event.orderId(), "Customer"),
                     NotificationChannel.SMS,
                     "order_status_changed",

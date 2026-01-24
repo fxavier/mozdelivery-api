@@ -49,7 +49,7 @@ public class NotificationController {
     public ResponseEntity<NotificationResponse> sendNotification(
             @Valid @RequestBody SendNotificationRequest request) {
         
-        logger.info("Sending notification for tenant: {} to recipient: {}", 
+        logger.info("Sending notification for merchant: {} to recipient: {}", 
             TenantContext.getCurrentTenant(), request.recipient());
         
         try {
@@ -87,7 +87,7 @@ public class NotificationController {
         }
     }
     
-    @Operation(summary = "Get notifications for tenant", description = "Retrieves all notifications for the authenticated tenant")
+    @Operation(summary = "Get notifications for merchant", description = "Retrieves all notifications for the authenticated merchant")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Notifications retrieved successfully"),
         @ApiResponse(responseCode = "401", description = "Unauthorized"),
@@ -95,19 +95,19 @@ public class NotificationController {
     })
     @GetMapping
     @PreAuthorize("hasAuthority('SCOPE_notification:read')")
-    public ResponseEntity<List<NotificationResponse>> getNotificationsForTenant() {
+    public ResponseEntity<List<NotificationResponse>> getNotificationsForMerchant() {
         
-        String tenantId = TenantContext.getCurrentTenant();
-        logger.info("Getting notifications for tenant: {}", tenantId);
+        String merchantId = TenantContext.getCurrentTenant();
+        logger.info("Getting notifications for merchant: {}", merchantId);
         
         try {
             List<NotificationResponse> notifications = notificationApplicationService
-                .getNotificationsForTenant(tenantId);
+                .getNotificationsForMerchant(merchantId);
             
             return ResponseEntity.ok(notifications);
             
         } catch (Exception e) {
-            logger.error("Error getting notifications for tenant: {}", tenantId, e);
+            logger.error("Error getting notifications for merchant: {}", merchantId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

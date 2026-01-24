@@ -4,15 +4,15 @@ import java.util.List;
 import java.util.Objects;
 
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.PaymentMethod;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.ValueObject;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
 
 /**
  * Request for creating a guest order without registration.
  */
 public record GuestOrderRequest(
-    TenantId tenantId,
+    MerchantId merchantId,
     GuestContactInfo guestInfo,
     List<OrderItemRequest> items,
     DeliveryAddressRequest deliveryAddress,
@@ -21,7 +21,7 @@ public record GuestOrderRequest(
 ) implements ValueObject {
     
     public GuestOrderRequest {
-        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+        Objects.requireNonNull(merchantId, "Merchant ID cannot be null");
         Objects.requireNonNull(guestInfo, "Guest info cannot be null");
         Objects.requireNonNull(items, "Items cannot be null");
         Objects.requireNonNull(deliveryAddress, "Delivery address cannot be null");

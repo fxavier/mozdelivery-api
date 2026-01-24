@@ -1,10 +1,7 @@
 package com.xavier.mozdeliveryapi.order.application.usecase;
 
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
-
 import java.util.List;
+
 import com.xavier.mozdeliveryapi.order.domain.entity.Order;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.CancellationReason;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.CreateOrderCommand;
@@ -12,6 +9,9 @@ import com.xavier.mozdeliveryapi.order.domain.valueobject.DeliveryAddress;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderFilter;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderItem;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
 
 /**
  * Domain service for order-related business operations.
@@ -39,17 +39,17 @@ public interface OrderService {
     Order cancelOrder(OrderId orderId, CancellationReason reason);
     
     /**
-     * Find orders for a tenant with optional filtering.
+     * Find orders for a merchant with optional filtering.
      */
-    List<Order> findOrdersByTenant(TenantId tenantId, OrderFilter filter);
+    List<Order> findOrdersByMerchant(MerchantId merchantId, OrderFilter filter);
     
     /**
-     * Validate if an order can be created for the given tenant.
+     * Validate if an order can be created for the given merchant.
      */
     void validateOrderCreation(CreateOrderCommand command);
     
     /**
      * Calculate delivery fee for an order.
      */
-    Money calculateDeliveryFee(TenantId tenantId, DeliveryAddress address, List<OrderItem> items);
+    Money calculateDeliveryFee(MerchantId merchantId, DeliveryAddress address, List<OrderItem> items);
 }

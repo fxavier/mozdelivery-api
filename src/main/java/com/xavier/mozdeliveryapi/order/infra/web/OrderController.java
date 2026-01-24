@@ -4,7 +4,7 @@ import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderFilter;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
 import com.xavier.mozdeliveryapi.shared.application.usecase.TenantContext;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -61,7 +61,7 @@ public class OrderController {
     public ResponseEntity<OrderResponse> createOrder(
             @Valid @RequestBody CreateOrderRequest request) {
         
-        logger.info("Creating order for tenant: {}", TenantContext.getCurrentTenant());
+        logger.info("Creating order for merchant: {}", TenantContext.getCurrentTenant());
         
         try {
             OrderResponse response = orderApplicationService.createOrder(request);
@@ -98,7 +98,7 @@ public class OrderController {
         }
     }
     
-    @Operation(summary = "Get orders for tenant", description = "Retrieves all orders for the authenticated tenant")
+    @Operation(summary = "Get orders for merchant", description = "Retrieves all orders for the authenticated merchant")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Orders retrieved successfully"),
         @ApiResponse(responseCode = "401", description = "Unauthorized"),
@@ -106,12 +106,12 @@ public class OrderController {
     })
     @GetMapping
     @PreAuthorize("hasAuthority('SCOPE_order:read')")
-    public ResponseEntity<List<OrderResponse>> getOrdersForTenant(
+    public ResponseEntity<List<OrderResponse>> getOrdersForMerchant(
             @Parameter(description = "Order status filter") @RequestParam(required = false) String status,
             @Parameter(description = "Customer ID filter") @RequestParam(required = false) String customerId) {
         
-        String tenantId = TenantContext.getCurrentTenant();
-        logger.info("Getting orders for tenant: {}", tenantId);
+        String merchantId = TenantContext.getCurrentTenant();
+        logger.info("Getting orders for merchant: {}", merchantId);
         
         try {
             OrderFilter filter = new OrderFilter(
@@ -124,13 +124,13 @@ public class OrderController {
                 20
             );
             
-            List<OrderResponse> orders = orderApplicationService.getOrdersForTenant(
-                TenantId.of(tenantId), filter);
+            List<OrderResponse> orders = orderApplicationService.getOrdersForMerchant(
+                MerchantId.of(merchantId), filter);
             
             return ResponseEntity.ok(orders);
             
         } catch (Exception e) {
-            logger.error("Error getting orders for tenant: {}", tenantId, e);
+            logger.error("Error getting orders for merchant: {}", merchantId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -251,7 +251,7 @@ public class OrderController {
         }
     }
     
-    @Operation(summary = "Get order statistics", description = "Retrieves order statistics for the authenticated tenant")
+    @Operation(summary = "Get order statistics", description = "Retrieves order statistics for the authenticated merchant")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Statistics retrieved successfully"),
         @ApiResponse(responseCode = "401", description = "Unauthorized"),
@@ -261,17 +261,17 @@ public class OrderController {
     @PreAuthorize("hasAuthority('SCOPE_order:read')")
     public ResponseEntity<OrderStatistics> getOrderStatistics() {
         
-        String tenantId = TenantContext.getCurrentTenant();
-        logger.info("Getting order statistics for tenant: {}", tenantId);
+        String merchantId = TenantContext.getCurrentTenant();
+        logger.info("Getting order statistics for merchant: {}", merchantId);
         
         try {
             OrderStatistics statistics = orderApplicationService.getOrderStatistics(
-                TenantId.of(tenantId));
+                MerchantId.of(merchantId));
             
             return ResponseEntity.ok(statistics);
             
         } catch (Exception e) {
-            logger.error("Error getting order statistics for tenant: {}", tenantId, e);
+            logger.error("Error getting order statistics for merchant: {}", merchantId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

@@ -9,16 +9,12 @@ import org.springframework.stereotype.Component;
 
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationChannel;
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.NotificationPriority;
-import com.xavier.mozdeliveryapi.notification.application.usecase.NotificationService;
 import com.xavier.mozdeliveryapi.notification.domain.valueobject.Recipient;
 import com.xavier.mozdeliveryapi.payment.domain.event.PaymentCompletedEvent;
 import com.xavier.mozdeliveryapi.payment.domain.event.PaymentFailedEvent;
 import com.xavier.mozdeliveryapi.payment.domain.event.RefundCompletedEvent;
 import com.xavier.mozdeliveryapi.payment.domain.event.RefundFailedEvent;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
-import com.xavier.mozdeliveryapi.order.domain.entity.Order;
-import com.xavier.mozdeliveryapi.payment.domain.entity.Payment;
-import com.xavier.mozdeliveryapi.payment.domain.entity.Refund;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 
 /**
  * Event handler for payment-related events that trigger notifications.
@@ -41,11 +37,11 @@ public class PaymentEventHandler {
         logger.info("Handling PaymentCompletedEvent for payment: {}", event.paymentId());
         
         try {
-            TenantId tenantId = tenantResolutionService.resolveTenantFromOrderId(event.orderId().toString());
+            MerchantId merchantId = tenantResolutionService.resolveMerchantFromOrderId(event.orderId().toString());
             
             // Create notification for successful payment
             notificationService.createNotification(
-                tenantId,
+                merchantId,
                 Recipient.phone("customer_phone_" + event.orderId(), "Customer"),
                 NotificationChannel.SMS,
                 "order_status_changed",
@@ -70,11 +66,11 @@ public class PaymentEventHandler {
         logger.info("Handling PaymentFailedEvent for payment: {}", event.paymentId());
         
         try {
-            TenantId tenantId = tenantResolutionService.resolveTenantFromOrderId(event.orderId().toString());
+            MerchantId merchantId = tenantResolutionService.resolveMerchantFromOrderId(event.orderId().toString());
             
             // Create high priority notification for payment failure
             notificationService.createNotification(
-                tenantId,
+                merchantId,
                 Recipient.phone("customer_phone_" + event.orderId(), "Customer"),
                 NotificationChannel.SMS,
                 "critical_alert",
@@ -87,7 +83,7 @@ public class PaymentEventHandler {
             
             // Also send push notification
             notificationService.createNotification(
-                tenantId,
+                merchantId,
                 Recipient.deviceToken("device_token_" + event.orderId(), "Customer"),
                 NotificationChannel.PUSH_NOTIFICATION,
                 "critical_alert",
@@ -112,11 +108,11 @@ public class PaymentEventHandler {
         logger.info("Handling RefundCompletedEvent for refund: {}", event.refundId());
         
         try {
-            TenantId tenantId = tenantResolutionService.resolveTenantFromPaymentId(event.paymentId().toString());
+            MerchantId merchantId = tenantResolutionService.resolveMerchantFromPaymentId(event.paymentId().toString());
             
             // Create notification for successful refund
             notificationService.createNotification(
-                tenantId,
+                merchantId,
                 Recipient.phone("customer_phone_" + event.paymentId(), "Customer"),
                 NotificationChannel.SMS,
                 "order_status_changed",
@@ -141,11 +137,11 @@ public class PaymentEventHandler {
         logger.info("Handling RefundFailedEvent for refund: {}", event.refundId());
         
         try {
-            TenantId tenantId = tenantResolutionService.resolveTenantFromPaymentId(event.paymentId().toString());
+            MerchantId merchantId = tenantResolutionService.resolveMerchantFromPaymentId(event.paymentId().toString());
             
             // Create critical alert for refund failure
             notificationService.createNotification(
-                tenantId,
+                merchantId,
                 Recipient.phone("customer_phone_" + event.paymentId(), "Customer"),
                 NotificationChannel.SMS,
                 "critical_alert",

@@ -1,6 +1,6 @@
 package com.xavier.mozdeliveryapi.order.domain;
 
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.Vertical;
+import com.xavier.mozdeliveryapi.merchant.domain.valueobject.Vertical;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
 import org.junit.jupiter.api.BeforeEach;

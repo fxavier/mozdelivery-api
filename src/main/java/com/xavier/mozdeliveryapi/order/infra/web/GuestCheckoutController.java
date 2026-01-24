@@ -59,7 +59,7 @@ public class GuestCheckoutController {
     public ResponseEntity<GuestOrderResponse> createGuestOrder(
             @Valid @RequestBody GuestOrderRequest request) {
         
-        logger.info("Creating guest order for tenant: {}", request.tenantId());
+        logger.info("Creating guest order for merchant: {}", request.merchantId());
         
         try {
             GuestOrderResponse response = guestCheckoutApplicationService.createGuestOrder(request);

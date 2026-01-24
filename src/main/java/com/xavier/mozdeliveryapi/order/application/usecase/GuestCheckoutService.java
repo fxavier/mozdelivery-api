@@ -43,7 +43,7 @@ public interface GuestCheckoutService {
      * Command for creating guest orders.
      */
     record GuestOrderCommand(
-        com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId tenantId,
+        com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId merchantId,
         GuestInfo guestInfo,
         java.util.List<com.xavier.mozdeliveryapi.order.domain.valueobject.OrderItem> items,
         com.xavier.mozdeliveryapi.order.domain.valueobject.DeliveryAddress deliveryAddress,

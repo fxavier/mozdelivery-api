@@ -42,7 +42,7 @@ public class GuestCheckoutApplicationServiceImpl implements GuestCheckoutApplica
     public GuestOrderResponse createGuestOrder(GuestOrderRequest request) {
         Objects.requireNonNull(request, "Guest order request cannot be null");
         
-        logger.info("Creating guest order for tenant: {}", request.tenantId());
+        logger.info("Creating guest order for merchant: {}", request.merchantId());
         
         // Generate guest info
         GuestInfo guestInfo = guestCheckoutService.generateGuestInfo(
@@ -53,7 +53,7 @@ public class GuestCheckoutApplicationServiceImpl implements GuestCheckoutApplica
         
         // Map request to domain command
         GuestCheckoutService.GuestOrderCommand command = new GuestCheckoutService.GuestOrderCommand(
-            request.tenantId(),
+            request.merchantId(),
             guestInfo,
             orderMapper.mapOrderItems(request.items(), request.currency()),
             orderMapper.mapDeliveryAddress(request.deliveryAddress()),
@@ -86,7 +86,7 @@ public class GuestCheckoutApplicationServiceImpl implements GuestCheckoutApplica
         Order order = guestCheckoutService.findOrderByTrackingToken(token);
         
         // Get merchant name (simplified for now - in real implementation would use merchant service)
-        String merchantName = getMerchantName(order.getTenantId());
+        String merchantName = getMerchantName(order.getMerchantId());
         
         // Convert to response
         GuestTrackingResponse response = GuestTrackingResponse.from(order, merchantName);
@@ -164,9 +164,9 @@ public class GuestCheckoutApplicationServiceImpl implements GuestCheckoutApplica
      * Get merchant name for display.
      * In a real implementation, this would call the merchant service.
      */
-    private String getMerchantName(com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId tenantId) {
+    private String getMerchantName(com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId merchantId) {
         // Simplified implementation - in real system would call merchant service
-        return "Merchant " + tenantId.value().toString().substring(0, 8);
+        return "Merchant " + merchantId.value().toString().substring(0, 8);
     }
     
     private com.xavier.mozdeliveryapi.shared.domain.valueobject.Money calculateTotalAmount(GuestOrderRequest request) {

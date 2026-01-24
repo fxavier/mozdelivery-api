@@ -3,7 +3,7 @@ package com.xavier.mozdeliveryapi.notification.domain.entity;
 import java.time.Instant;
 import java.util.Map;
 
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.shared.domain.entity.AggregateRoot;
 import com.xavier.mozdeliveryapi.notification.domain.event.NotificationCancelledEvent;
 import com.xavier.mozdeliveryapi.notification.domain.event.NotificationCreatedEvent;
@@ -22,7 +22,7 @@ import com.xavier.mozdeliveryapi.notification.domain.valueobject.Recipient;
 public class Notification extends AggregateRoot<NotificationId> {
     
     private final NotificationId id;
-    private final TenantId tenantId;
+    private final MerchantId merchantId;
     private final Recipient recipient;
     private final NotificationChannel channel;
     private final String templateId;
@@ -39,7 +39,7 @@ public class Notification extends AggregateRoot<NotificationId> {
     
     public Notification(
             NotificationId id,
-            TenantId tenantId,
+            MerchantId merchantId,
             Recipient recipient,
             NotificationChannel channel,
             String templateId,
@@ -49,7 +49,7 @@ public class Notification extends AggregateRoot<NotificationId> {
             NotificationPriority priority
     ) {
         this.id = id;
-        this.tenantId = tenantId;
+        this.merchantId = merchantId;
         this.recipient = recipient;
         this.channel = channel;
         this.templateId = templateId;
@@ -61,7 +61,7 @@ public class Notification extends AggregateRoot<NotificationId> {
         this.createdAt = Instant.now();
         
         // Publish domain event
-        registerEvent(new NotificationCreatedEvent(id, tenantId, recipient, channel, priority, createdAt));
+        registerEvent(new NotificationCreatedEvent(id, merchantId, recipient, channel, priority, createdAt));
     }
     
     @Override
@@ -79,32 +79,32 @@ public class Notification extends AggregateRoot<NotificationId> {
         this.externalId = externalId;
         this.sentAt = Instant.now();
         
-        registerEvent(new NotificationSentEvent(getId(), tenantId, recipient, channel, sentAt));
+        registerEvent(new NotificationSentEvent(getId(), merchantId, recipient, channel, sentAt));
     }
     
     public void markAsDelivered() {
         this.status = NotificationStatus.DELIVERED;
         this.deliveredAt = Instant.now();
         
-        registerEvent(new NotificationDeliveredEvent(getId(), tenantId, recipient, channel, deliveredAt));
+        registerEvent(new NotificationDeliveredEvent(getId(), merchantId, recipient, channel, deliveredAt));
     }
     
     public void markAsFailed(String reason) {
         this.status = NotificationStatus.FAILED;
         this.failureReason = reason;
         
-        registerEvent(new NotificationFailedEvent(getId(), tenantId, recipient, channel, reason, Instant.now()));
+        registerEvent(new NotificationFailedEvent(getId(), merchantId, recipient, channel, reason, Instant.now()));
     }
     
     public void cancel() {
         if (status == NotificationStatus.PENDING) {
             this.status = NotificationStatus.CANCELLED;
-            registerEvent(new NotificationCancelledEvent(getId(), tenantId, recipient, channel, Instant.now()));
+            registerEvent(new NotificationCancelledEvent(getId(), merchantId, recipient, channel, Instant.now()));
         }
     }
     
     // Getters
-    public TenantId getTenantId() { return tenantId; }
+    public MerchantId getMerchantId() { return merchantId; }
     public Recipient getRecipient() { return recipient; }
     public NotificationChannel getChannel() { return channel; }
     public String getTemplateId() { return templateId; }
