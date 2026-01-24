@@ -20,6 +20,11 @@ public interface GuestCheckoutApplicationService {
     GuestTrackingResponse trackGuestOrder(String trackingToken);
     
     /**
+     * Get order status updates for guest order.
+     */
+    GuestTrackingResponse getOrderStatusUpdates(String trackingToken);
+    
+    /**
      * Resend delivery confirmation code for guest order.
      */
     void resendDeliveryCode(String trackingToken);

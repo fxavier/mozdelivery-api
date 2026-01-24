@@ -79,18 +79,14 @@ public class GuestCheckoutApplicationServiceImpl implements GuestCheckoutApplica
         
         logger.debug("Tracking guest order with token: {}", trackingToken);
         
-        // Parse tracking token
-        GuestTrackingToken token = GuestTrackingToken.of(
-            trackingToken, 
-            java.time.Instant.now().minusSeconds(3600), // Placeholder - would come from token parsing
-            java.time.Instant.now().plusSeconds(3600 * 72) // Placeholder
-        );
+        // Parse and validate tracking token
+        GuestTrackingToken token = parseTrackingToken(trackingToken);
         
         // Find the order
         Order order = guestCheckoutService.findOrderByTrackingToken(token);
         
-        // Get merchant name (simplified for now)
-        String merchantName = "Merchant " + order.getTenantId().value().toString().substring(0, 8);
+        // Get merchant name (simplified for now - in real implementation would use merchant service)
+        String merchantName = getMerchantName(order.getTenantId());
         
         // Convert to response
         GuestTrackingResponse response = GuestTrackingResponse.from(order, merchantName);
@@ -106,12 +102,8 @@ public class GuestCheckoutApplicationServiceImpl implements GuestCheckoutApplica
         
         logger.info("Resending delivery code for token: {}", trackingToken);
         
-        // Parse tracking token
-        GuestTrackingToken token = GuestTrackingToken.of(
-            trackingToken,
-            java.time.Instant.now().minusSeconds(3600), // Placeholder
-            java.time.Instant.now().plusSeconds(3600 * 72) // Placeholder
-        );
+        // Parse and validate tracking token
+        GuestTrackingToken token = parseTrackingToken(trackingToken);
         
         guestCheckoutService.resendDeliveryCode(token);
         
@@ -125,16 +117,56 @@ public class GuestCheckoutApplicationServiceImpl implements GuestCheckoutApplica
         
         logger.info("Converting guest to customer: {}", customerId);
         
-        // Parse tracking token
-        GuestTrackingToken token = GuestTrackingToken.of(
-            trackingToken,
-            java.time.Instant.now().minusSeconds(3600), // Placeholder
-            java.time.Instant.now().plusSeconds(3600 * 72) // Placeholder
-        );
+        // Parse and validate tracking token
+        GuestTrackingToken token = parseTrackingToken(trackingToken);
         
         guestCheckoutService.convertGuestToCustomer(token, customerId);
         
         logger.info("Guest converted to customer successfully");
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public GuestTrackingResponse getOrderStatusUpdates(String trackingToken) {
+        // This method provides the same functionality as trackGuestOrder
+        // but is semantically different - it's specifically for status updates
+        return trackGuestOrder(trackingToken);
+    }
+    
+    /**
+     * Parse tracking token from string format.
+     * In a real implementation, this would decode a structured token containing
+     * the token value, generation time, and expiry time.
+     */
+    private GuestTrackingToken parseTrackingToken(String tokenString) {
+        if (tokenString == null || tokenString.trim().isEmpty()) {
+            throw new IllegalArgumentException("Tracking token cannot be null or empty");
+        }
+        
+        try {
+            // For now, we'll use a simple approach where the token string is the actual token
+            // In a real implementation, this might be a JWT or encrypted token containing metadata
+            
+            // Generate reasonable defaults for parsing
+            java.time.Instant now = java.time.Instant.now();
+            java.time.Instant generatedAt = now.minusSeconds(3600); // Assume generated 1 hour ago
+            java.time.Instant expiresAt = now.plusSeconds(3600 * 71); // Expires in 71 hours from now
+            
+            return GuestTrackingToken.of(tokenString.trim(), generatedAt, expiresAt);
+            
+        } catch (Exception e) {
+            logger.warn("Failed to parse tracking token: {}", e.getMessage());
+            throw new IllegalArgumentException("Invalid tracking token format", e);
+        }
+    }
+    
+    /**
+     * Get merchant name for display.
+     * In a real implementation, this would call the merchant service.
+     */
+    private String getMerchantName(com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId tenantId) {
+        // Simplified implementation - in real system would call merchant service
+        return "Merchant " + tenantId.value().toString().substring(0, 8);
     }
     
     private com.xavier.mozdeliveryapi.shared.domain.valueobject.Money calculateTotalAmount(GuestOrderRequest request) {
