@@ -1,5 +1,8 @@
 package com.xavier.mozdeliveryapi.order.application.dto;
 
+import java.time.Instant;
+import java.util.List;
+
 import com.xavier.mozdeliveryapi.order.domain.entity.Order;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestInfo;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
@@ -7,9 +10,6 @@ import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
 import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
-
-import java.time.Instant;
-import java.util.List;
 
 /**
  * Response for guest order tracking.
@@ -28,13 +28,19 @@ public record GuestTrackingResponse(
     Instant createdAt,
     Instant updatedAt,
     Instant estimatedDelivery,
-    boolean canCancel
+    boolean canCancel,
+    boolean canResendCode,
+    String trackingUrl
 ) {
     
     public static GuestTrackingResponse from(Order order, String merchantName) {
         if (order.getGuestInfo() == null) {
             throw new IllegalArgumentException("Order must have guest info");
         }
+        
+        String baseUrl = "http://localhost:8080"; // This should come from configuration
+        String trackingUrl = baseUrl + "/api/public/orders/guest/track?token=" + 
+                           order.getGuestInfo().trackingToken().getValue();
         
         return new GuestTrackingResponse(
             order.getOrderId(),
@@ -52,7 +58,9 @@ public record GuestTrackingResponse(
             order.getCreatedAt(),
             order.getUpdatedAt(),
             calculateEstimatedDelivery(order),
-            order.canBeCancelled()
+            order.canBeCancelled(),
+            canResendDeliveryCode(order.getStatus()),
+            trackingUrl
         );
     }
     
@@ -71,8 +79,31 @@ public record GuestTrackingResponse(
     }
     
     private static Instant calculateEstimatedDelivery(Order order) {
-        // Simple estimation - in real implementation this would use delivery service
-        return order.getCreatedAt().plusSeconds(3600); // 1 hour estimate
+        // Enhanced estimation based on order status
+        return switch (order.getStatus()) {
+            case PENDING, PAYMENT_PROCESSING -> 
+                order.getCreatedAt().plusSeconds(3600 * 2); // 2 hours for processing + delivery
+            case PAYMENT_CONFIRMED, PREPARING -> 
+                order.getCreatedAt().plusSeconds(3600); // 1 hour for preparation + delivery
+            case READY_FOR_PICKUP -> 
+                order.getUpdatedAt().plusSeconds(1800); // 30 minutes for pickup + delivery
+            case OUT_FOR_DELIVERY -> 
+                order.getUpdatedAt().plusSeconds(900); // 15 minutes for delivery
+            case DELIVERED -> 
+                order.getUpdatedAt(); // Already delivered
+            default -> 
+                order.getCreatedAt().plusSeconds(3600); // Default 1 hour
+        };
+    }
+    
+    /**
+     * Check if delivery code can be resent for the given order status.
+     */
+    private static boolean canResendDeliveryCode(OrderStatus status) {
+        return switch (status) {
+            case PAYMENT_CONFIRMED, PREPARING, READY_FOR_PICKUP, OUT_FOR_DELIVERY -> true;
+            default -> false;
+        };
     }
     
     /**

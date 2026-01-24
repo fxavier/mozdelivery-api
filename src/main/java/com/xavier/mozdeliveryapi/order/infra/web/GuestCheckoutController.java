@@ -143,6 +143,39 @@ public class GuestCheckoutController {
         }
     }
     
+    @GetMapping("/status")
+    @Operation(
+        summary = "Get guest order status updates",
+        description = "Get current status and updates for guest order using tracking token"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Order status retrieved"),
+        @ApiResponse(responseCode = "400", description = "Invalid tracking token"),
+        @ApiResponse(responseCode = "404", description = "Order not found"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<GuestTrackingResponse> getOrderStatusUpdates(
+            @Parameter(description = "Guest tracking token", required = true)
+            @RequestParam("token") String trackingToken) {
+        
+        logger.debug("Getting order status updates for token: {}", trackingToken);
+        
+        try {
+            GuestTrackingResponse response = guestCheckoutApplicationService.getOrderStatusUpdates(trackingToken);
+            
+            logger.debug("Order status updates retrieved: {}", response.orderId());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (IllegalArgumentException e) {
+            logger.warn("Invalid tracking token for status updates: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error getting order status updates", e);
+            throw e;
+        }
+    }
+    
     @PostMapping("/convert-to-customer")
     @Operation(
         summary = "Convert guest to registered customer",
