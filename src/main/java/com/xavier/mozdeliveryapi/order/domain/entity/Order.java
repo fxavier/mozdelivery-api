@@ -6,23 +6,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import com.xavier.mozdeliveryapi.shared.domain.entity.AggregateRoot;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
-import com.xavier.mozdeliveryapi.dispatch.domain.entity.Delivery;
 import com.xavier.mozdeliveryapi.order.domain.event.OrderCancelledEvent;
 import com.xavier.mozdeliveryapi.order.domain.event.OrderCreatedEvent;
 import com.xavier.mozdeliveryapi.order.domain.event.OrderStatusChangedEvent;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.CancellationReason;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.DeliveryAddress;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestInfo;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderItem;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.PaymentInfo;
-import com.xavier.mozdeliveryapi.payment.domain.entity.Payment;
-import com.xavier.mozdeliveryapi.tenant.domain.entity.Tenant;
+import com.xavier.mozdeliveryapi.shared.domain.entity.AggregateRoot;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
 
 /**
  * Order aggregate root representing a customer order.
@@ -31,7 +29,8 @@ public class Order extends AggregateRoot<OrderId> {
     
     private final OrderId id;
     private final TenantId tenantId;
-    private final CustomerId customerId;
+    private final CustomerId customerId; // null for guest orders
+    private final GuestInfo guestInfo; // null for registered customer orders
     private final List<OrderItem> items;
     private final DeliveryAddress deliveryAddress;
     private OrderStatus status;
@@ -41,13 +40,14 @@ public class Order extends AggregateRoot<OrderId> {
     private final Instant createdAt;
     private Instant updatedAt;
     
-    // Constructor for creating new order
+    // Constructor for creating new registered customer order
     public Order(OrderId id, TenantId tenantId, CustomerId customerId, 
                  List<OrderItem> items, DeliveryAddress deliveryAddress, 
                  PaymentInfo paymentInfo) {
         this.id = Objects.requireNonNull(id, "Order ID cannot be null");
         this.tenantId = Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
         this.customerId = Objects.requireNonNull(customerId, "Customer ID cannot be null");
+        this.guestInfo = null; // Not a guest order
         this.items = validateItems(items);
         this.deliveryAddress = Objects.requireNonNull(deliveryAddress, "Delivery address cannot be null");
         this.paymentInfo = Objects.requireNonNull(paymentInfo, "Payment info cannot be null");
@@ -66,14 +66,41 @@ public class Order extends AggregateRoot<OrderId> {
         registerEvent(OrderCreatedEvent.of(id, tenantId, customerId, totalAmount));
     }
     
+    // Constructor for creating new guest order
+    public Order(OrderId id, TenantId tenantId, GuestInfo guestInfo,
+                 List<OrderItem> items, DeliveryAddress deliveryAddress, 
+                 PaymentInfo paymentInfo) {
+        this.id = Objects.requireNonNull(id, "Order ID cannot be null");
+        this.tenantId = Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+        this.customerId = null; // Guest order
+        this.guestInfo = Objects.requireNonNull(guestInfo, "Guest info cannot be null");
+        this.items = validateItems(items);
+        this.deliveryAddress = Objects.requireNonNull(deliveryAddress, "Delivery address cannot be null");
+        this.paymentInfo = Objects.requireNonNull(paymentInfo, "Payment info cannot be null");
+        this.status = OrderStatus.PENDING;
+        this.totalAmount = calculateTotalAmount(items);
+        this.currency = this.totalAmount.currency();
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
+        
+        // Validate payment amount matches order total
+        if (!paymentInfo.amount().equals(totalAmount)) {
+            throw new IllegalArgumentException("Payment amount must match order total");
+        }
+        
+        // Register domain event for guest order
+        registerEvent(OrderCreatedEvent.ofGuest(id, tenantId, guestInfo, totalAmount));
+    }
+    
     // Constructor for reconstituting from persistence
-    public Order(OrderId id, TenantId tenantId, CustomerId customerId, 
+    public Order(OrderId id, TenantId tenantId, CustomerId customerId, GuestInfo guestInfo,
                  List<OrderItem> items, DeliveryAddress deliveryAddress, 
                  OrderStatus status, PaymentInfo paymentInfo, Money totalAmount, 
                  Currency currency, Instant createdAt, Instant updatedAt) {
         this.id = Objects.requireNonNull(id, "Order ID cannot be null");
         this.tenantId = Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
-        this.customerId = Objects.requireNonNull(customerId, "Customer ID cannot be null");
+        this.customerId = customerId; // Can be null for guest orders
+        this.guestInfo = guestInfo; // Can be null for registered customer orders
         this.items = validateItems(items);
         this.deliveryAddress = Objects.requireNonNull(deliveryAddress, "Delivery address cannot be null");
         this.status = Objects.requireNonNull(status, "Status cannot be null");
@@ -82,6 +109,11 @@ public class Order extends AggregateRoot<OrderId> {
         this.currency = Objects.requireNonNull(currency, "Currency cannot be null");
         this.createdAt = Objects.requireNonNull(createdAt, "Created at cannot be null");
         this.updatedAt = Objects.requireNonNull(updatedAt, "Updated at cannot be null");
+        
+        // Validate that either customerId or guestInfo is provided, but not both
+        if ((customerId == null && guestInfo == null) || (customerId != null && guestInfo != null)) {
+            throw new IllegalArgumentException("Order must have either customer ID or guest info, but not both");
+        }
     }
     
     @Override
@@ -179,6 +211,20 @@ public class Order extends AggregateRoot<OrderId> {
     public boolean isCompleted() {
         return status == OrderStatus.DELIVERED;
     }
+
+    /**
+     * Check if the order was placed by a guest.
+     */
+    public boolean isGuestOrder() {
+        return guestInfo != null;
+    }
+
+    /**
+     * Check if the order was placed by a registered customer.
+     */
+    public boolean isRegisteredCustomerOrder() {
+        return customerId != null;
+    }
     
     /**
      * Get the number of items in the order.
@@ -221,6 +267,7 @@ public class Order extends AggregateRoot<OrderId> {
     public OrderId getOrderId() { return id; }
     public TenantId getTenantId() { return tenantId; }
     public CustomerId getCustomerId() { return customerId; }
+    public GuestInfo getGuestInfo() { return guestInfo; }
     public List<OrderItem> getItems() { return Collections.unmodifiableList(items); }
     public DeliveryAddress getDeliveryAddress() { return deliveryAddress; }
     public OrderStatus getStatus() { return status; }

@@ -3,12 +3,13 @@ package com.xavier.mozdeliveryapi.order.application.usecase.port;
 import java.util.List;
 import java.util.Optional;
 
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
-import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
-import com.xavier.mozdeliveryapi.shared.application.usecase.port.Repository;
 import com.xavier.mozdeliveryapi.order.domain.entity.Order;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestTrackingToken;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
+import com.xavier.mozdeliveryapi.shared.application.usecase.port.Repository;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
+import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
 
 /**
  * Repository interface for Order aggregate.
@@ -51,6 +52,21 @@ public interface OrderRepository extends Repository<Order, OrderId> {
     List<Order> findByStatus(OrderStatus status);
     
     /**
+     * Find guest order by tracking token.
+     */
+    Optional<Order> findByGuestTrackingToken(GuestTrackingToken token);
+    
+    /**
+     * Find all guest orders for a tenant.
+     */
+    List<Order> findGuestOrdersByTenantId(TenantId tenantId);
+    
+    /**
+     * Find guest orders by tenant and status.
+     */
+    List<Order> findGuestOrdersByTenantIdAndStatus(TenantId tenantId, OrderStatus status);
+    
+    /**
      * Check if an order exists.
      */
     boolean existsById(OrderId orderId);
@@ -69,4 +85,9 @@ public interface OrderRepository extends Repository<Order, OrderId> {
      * Count orders by tenant and status.
      */
     long countByTenantIdAndStatus(TenantId tenantId, OrderStatus status);
+    
+    /**
+     * Count guest orders by tenant.
+     */
+    long countGuestOrdersByTenantId(TenantId tenantId);
 }

@@ -10,10 +10,10 @@ import org.springframework.stereotype.Repository;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
 import com.xavier.mozdeliveryapi.order.domain.entity.Order;
 import com.xavier.mozdeliveryapi.order.application.usecase.port.OrderRepository;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestTrackingToken;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
 import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
-import com.xavier.mozdeliveryapi.tenant.domain.entity.Tenant;
 
 /**
  * Implementation of OrderRepository using JPA.
@@ -133,5 +133,41 @@ public class OrderRepositoryImpl implements OrderRepository {
         Objects.requireNonNull(status, "Status cannot be null");
         
         return jpaRepository.countByTenantIdAndStatus(tenantId.value(), status);
+    }
+    
+    @Override
+    public Optional<Order> findByGuestTrackingToken(GuestTrackingToken token) {
+        Objects.requireNonNull(token, "Guest tracking token cannot be null");
+        
+        return jpaRepository.findByGuestTrackingToken(token.getValue())
+            .map(mapper::toDomain);
+    }
+    
+    @Override
+    public List<Order> findGuestOrdersByTenantId(TenantId tenantId) {
+        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+        
+        return jpaRepository.findByTenantIdAndGuestInfoIsNotNull(tenantId.value())
+            .stream()
+            .map(mapper::toDomain)
+            .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<Order> findGuestOrdersByTenantIdAndStatus(TenantId tenantId, OrderStatus status) {
+        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+        Objects.requireNonNull(status, "Status cannot be null");
+        
+        return jpaRepository.findByTenantIdAndStatusAndGuestInfoIsNotNull(tenantId.value(), status)
+            .stream()
+            .map(mapper::toDomain)
+            .collect(Collectors.toList());
+    }
+    
+    @Override
+    public long countGuestOrdersByTenantId(TenantId tenantId) {
+        Objects.requireNonNull(tenantId, "Tenant ID cannot be null");
+        
+        return jpaRepository.countByTenantIdAndGuestInfoIsNotNull(tenantId.value());
     }
 }

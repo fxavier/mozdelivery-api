@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.DeliveryAddress;
 import com.xavier.mozdeliveryapi.order.domain.entity.Order;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestInfo;
+import com.xavier.mozdeliveryapi.order.domain.valueobject.GuestTrackingToken;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderItem;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.PaymentInfo;
 import com.xavier.mozdeliveryapi.tenant.domain.valueobject.TenantId;
@@ -20,14 +22,15 @@ import com.xavier.mozdeliveryapi.shared.domain.valueobject.PaymentStatus;
 /**
  * Mapper between Order domain objects and OrderEntity.
  */
-@Component
+@Component("orderPersistenceMapper")
 public class OrderMapper {
     
     public OrderEntity toEntity(Order order) {
         return new OrderEntity(
             order.getOrderId().value(),
             order.getTenantId().value(),
-            order.getCustomerId().value(),
+            order.isRegisteredCustomerOrder() ? order.getCustomerId().value() : null,
+            order.isGuestOrder() ? mapGuestInfo(order.getGuestInfo()) : null,
             mapItems(order.getItems()),
             mapDeliveryAddress(order.getDeliveryAddress()),
             order.getStatus(),
@@ -43,7 +46,8 @@ public class OrderMapper {
         return new Order(
             OrderId.of(entity.getId()),
             TenantId.of(entity.getTenantId()),
-            CustomerId.of(entity.getCustomerId()),
+            entity.getCustomerId() != null ? CustomerId.of(entity.getCustomerId()) : null,
+            entity.getGuestInfo() != null ? mapGuestInfoFromData(entity.getGuestInfo()) : null,
             mapItemsFromData(entity.getItems()),
             mapDeliveryAddressFromData(entity.getDeliveryAddress()),
             entity.getStatus(),
@@ -122,6 +126,34 @@ public class OrderMapper {
             data.paymentReference(),
             Money.of(data.amount(), Currency.fromCode(data.currency())),
             PaymentStatus.valueOf(data.status())
+        );
+    }
+    
+    private OrderEntity.GuestInfoData mapGuestInfo(GuestInfo guestInfo) {
+        return new OrderEntity.GuestInfoData(
+            guestInfo.contactPhone(),
+            guestInfo.contactEmail(),
+            guestInfo.contactName(),
+            guestInfo.trackingToken().getValue(),
+            guestInfo.trackingToken().generatedAt(),
+            guestInfo.trackingToken().expiresAt(),
+            guestInfo.createdAt()
+        );
+    }
+    
+    private GuestInfo mapGuestInfoFromData(OrderEntity.GuestInfoData data) {
+        GuestTrackingToken token = GuestTrackingToken.of(
+            data.trackingToken(),
+            data.tokenGeneratedAt(),
+            data.tokenExpiresAt()
+        );
+        
+        return new GuestInfo(
+            data.contactPhone(),
+            data.contactEmail(),
+            data.contactName(),
+            token,
+            data.createdAt()
         );
     }
 }
