@@ -45,13 +45,13 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
     - Add catalog visibility and status controls
     - _Requirements: 3A_
 
-  - [ ] 2.2 Implement Product Management
+  - [x] 2.2 Implement Product Management
     - Create Product aggregate with modifiers and availability
     - Implement stock management and availability tracking
     - Add product image and media management
     - _Requirements: 3A_
 
-  - [ ] 2.3 Create Catalog Management APIs
+  - [x] 2.3 Create Catalog Management APIs
     - Implement CRUD operations for catalogs, categories, products
     - Add merchant-specific access controls
     - Implement real-time catalog updates
