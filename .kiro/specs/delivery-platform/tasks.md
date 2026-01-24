@@ -93,7 +93,7 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
     - Implement order routing to specific merchants
     - _Requirements: 4, 4A_
 
-  - [ ] 4.2 Implement Order State Machine
+  - [x] 4.2 Implement Order State Machine
     - Create comprehensive order status transitions
     - Add merchant-specific order processing workflows
     - Implement order cancellation and refund logic

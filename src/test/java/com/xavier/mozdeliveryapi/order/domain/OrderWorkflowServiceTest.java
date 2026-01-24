@@ -2,57 +2,73 @@ package com.xavier.mozdeliveryapi.order.domain;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
-import com.xavier.mozdeliveryapi.shared.domain.valueobject.PaymentMethod;
 import com.xavier.mozdeliveryapi.order.application.usecase.OrderWorkflowService;
 import com.xavier.mozdeliveryapi.order.application.usecase.OrderWorkflowServiceImpl;
 import com.xavier.mozdeliveryapi.order.domain.entity.Order;
+import com.xavier.mozdeliveryapi.order.domain.service.OrderStateMachine;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.CancellationReason;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.DeliveryAddress;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderItem;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.OrderStatus;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.PaymentInfo;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Currency;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Money;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.PaymentMethod;
 
+@ExtendWith(MockitoExtension.class)
 class OrderWorkflowServiceTest {
+    
+    @Mock
+    private OrderStateMachine orderStateMachine;
     
     private OrderWorkflowService workflowService;
     
     @BeforeEach
     void setUp() {
-        workflowService = new OrderWorkflowServiceImpl();
+        workflowService = new OrderWorkflowServiceImpl(orderStateMachine);
     }
     
     @Test
     void shouldProcessOrderCreationForCashOnDelivery() {
         // Given
         Order order = createOrderWithPaymentMethod(PaymentMethod.CASH_ON_DELIVERY);
+        when(orderStateMachine.canAutoProgress(order)).thenReturn(true);
         
         // When
         workflowService.processOrderCreation(order);
         
         // Then
-        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_CONFIRMED);
+        verify(orderStateMachine).validateBusinessRules(order);
+        verify(orderStateMachine).executeAutoProgression(order);
     }
     
     @Test
     void shouldProcessOrderCreationForOnlinePayment() {
         // Given
         Order order = createOrderWithPaymentMethod(PaymentMethod.MPESA);
+        when(orderStateMachine.canAutoProgress(order)).thenReturn(false);
         
         // When
         workflowService.processOrderCreation(order);
         
         // Then
-        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_PROCESSING);
+        verify(orderStateMachine).validateBusinessRules(order);
+        verify(orderStateMachine, never()).executeAutoProgression(order);
     }
     
     @Test
@@ -60,12 +76,14 @@ class OrderWorkflowServiceTest {
         // Given
         Order order = createOrderWithPaymentMethod(PaymentMethod.MPESA);
         order.updateStatus(OrderStatus.PAYMENT_PROCESSING);
+        when(orderStateMachine.canAutoProgress(order)).thenReturn(true);
         
         // When
         workflowService.processPaymentConfirmation(order);
         
         // Then
-        assertThat(order.getStatus()).isEqualTo(OrderStatus.PAYMENT_CONFIRMED);
+        verify(orderStateMachine).executeTransition(order, OrderStatus.PAYMENT_CONFIRMED, "Payment confirmed");
+        verify(orderStateMachine).executeAutoProgression(order);
     }
     
     @Test
@@ -78,7 +96,7 @@ class OrderWorkflowServiceTest {
         workflowService.processPaymentFailure(order);
         
         // Then
-        assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+        verify(orderStateMachine).cancelOrder(order, CancellationReason.PAYMENT_FAILED, "Payment processing failed");
     }
     
     @Test
@@ -91,7 +109,7 @@ class OrderWorkflowServiceTest {
         workflowService.processOrderPreparation(order);
         
         // Then
-        assertThat(order.getStatus()).isEqualTo(OrderStatus.PREPARING);
+        verify(orderStateMachine).executeTransition(order, OrderStatus.PREPARING, "Merchant accepted order");
     }
     
     @Test
@@ -105,7 +123,7 @@ class OrderWorkflowServiceTest {
         workflowService.processOrderReadyForPickup(order);
         
         // Then
-        assertThat(order.getStatus()).isEqualTo(OrderStatus.READY_FOR_PICKUP);
+        verify(orderStateMachine).executeTransition(order, OrderStatus.READY_FOR_PICKUP, "Order preparation completed");
     }
     
     @Test
@@ -120,7 +138,7 @@ class OrderWorkflowServiceTest {
         workflowService.processOrderOutForDelivery(order);
         
         // Then
-        assertThat(order.getStatus()).isEqualTo(OrderStatus.OUT_FOR_DELIVERY);
+        verify(orderStateMachine).executeTransition(order, OrderStatus.OUT_FOR_DELIVERY, "Courier picked up order");
     }
     
     @Test
@@ -136,7 +154,7 @@ class OrderWorkflowServiceTest {
         workflowService.processOrderDelivered(order);
         
         // Then
-        assertThat(order.getStatus()).isEqualTo(OrderStatus.DELIVERED);
+        verify(orderStateMachine).executeTransition(order, OrderStatus.DELIVERED, "Order delivered successfully");
     }
     
     @Test
@@ -148,38 +166,54 @@ class OrderWorkflowServiceTest {
         workflowService.processOrderCancellation(order, CancellationReason.CUSTOMER_REQUEST);
         
         // Then
-        assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+        verify(orderStateMachine).cancelOrder(order, CancellationReason.CUSTOMER_REQUEST, null);
     }
     
     @Test
-    void shouldIdentifyAutoTransitionForCashOnDelivery() {
-        // Given
-        Order order = createOrderWithPaymentMethod(PaymentMethod.CASH_ON_DELIVERY);
-        
-        // When & Then
-        assertThat(workflowService.canAutoTransition(order)).isTrue();
-        assertThat(workflowService.getNextAutomaticStatus(order)).isEqualTo(OrderStatus.PAYMENT_CONFIRMED);
-    }
-    
-    @Test
-    void shouldIdentifyAutoTransitionForPaymentConfirmed() {
-        // Given
-        Order order = createOrderWithPaymentMethod(PaymentMethod.CASH_ON_DELIVERY);
-        order.updateStatus(OrderStatus.PAYMENT_CONFIRMED);
-        
-        // When & Then
-        assertThat(workflowService.canAutoTransition(order)).isTrue();
-        assertThat(workflowService.getNextAutomaticStatus(order)).isEqualTo(OrderStatus.PREPARING);
-    }
-    
-    @Test
-    void shouldNotAutoTransitionForOnlinePayment() {
+    void shouldProcessOrderRefund() {
         // Given
         Order order = createOrderWithPaymentMethod(PaymentMethod.MPESA);
-        order.updateStatus(OrderStatus.PAYMENT_PROCESSING);
+        when(orderStateMachine.canRefund(order)).thenReturn(true);
+        
+        // When
+        workflowService.processOrderRefund(order, "Quality issue");
+        
+        // Then
+        verify(orderStateMachine).processRefund(order, "Quality issue");
+    }
+    
+    @Test
+    void shouldIdentifyAutoTransition() {
+        // Given
+        Order order = createOrderWithPaymentMethod(PaymentMethod.CASH_ON_DELIVERY);
+        when(orderStateMachine.canAutoProgress(order)).thenReturn(true);
         
         // When & Then
-        assertThat(workflowService.canAutoTransition(order)).isFalse();
+        assertThat(workflowService.canAutoTransition(order)).isTrue();
+        verify(orderStateMachine).canAutoProgress(order);
+    }
+    
+    @Test
+    void shouldGetNextAutomaticStatus() {
+        // Given
+        Order order = createOrderWithPaymentMethod(PaymentMethod.CASH_ON_DELIVERY);
+        when(orderStateMachine.getNextAutoStatus(order)).thenReturn(OrderStatus.PAYMENT_CONFIRMED);
+        
+        // When & Then
+        assertThat(workflowService.getNextAutomaticStatus(order)).isEqualTo(OrderStatus.PAYMENT_CONFIRMED);
+        verify(orderStateMachine).getNextAutoStatus(order);
+    }
+    
+    @Test
+    void shouldGetValidNextStatuses() {
+        // Given
+        Order order = createOrderWithPaymentMethod(PaymentMethod.MPESA);
+        Set<OrderStatus> expectedStatuses = Set.of(OrderStatus.PAYMENT_PROCESSING, OrderStatus.CANCELLED);
+        when(orderStateMachine.getValidNextStatuses(order)).thenReturn(expectedStatuses);
+        
+        // When & Then
+        assertThat(workflowService.getValidNextStatuses(order)).isEqualTo(expectedStatuses);
+        verify(orderStateMachine).getValidNextStatuses(order);
     }
     
     private Order createOrderWithPaymentMethod(PaymentMethod paymentMethod) {
