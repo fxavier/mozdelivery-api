@@ -31,8 +31,12 @@ public class OrderEntity {
     @Column(name = "tenant_id", nullable = false)
     private UUID tenantId;
     
-    @Column(name = "customer_id", nullable = false)
+    @Column(name = "customer_id", nullable = true) // Now nullable for guest orders
     private UUID customerId;
+    
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "guest_info", nullable = true, columnDefinition = "jsonb") // New field for guest orders
+    private GuestInfoData guestInfo;
     
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "items", nullable = false, columnDefinition = "jsonb")
@@ -67,13 +71,14 @@ public class OrderEntity {
     protected OrderEntity() {}
     
     // Constructor
-    public OrderEntity(UUID id, UUID tenantId, UUID customerId, List<OrderItemData> items,
-                      DeliveryAddressData deliveryAddress, OrderStatus status, 
-                      PaymentInfoData paymentInfo, BigDecimal totalAmount, Currency currency,
-                      Instant createdAt, Instant updatedAt) {
+    public OrderEntity(UUID id, UUID tenantId, UUID customerId, GuestInfoData guestInfo, 
+                      List<OrderItemData> items, DeliveryAddressData deliveryAddress, 
+                      OrderStatus status, PaymentInfoData paymentInfo, BigDecimal totalAmount, 
+                      Currency currency, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.tenantId = tenantId;
         this.customerId = customerId;
+        this.guestInfo = guestInfo;
         this.items = items;
         this.deliveryAddress = deliveryAddress;
         this.status = status;
@@ -93,6 +98,9 @@ public class OrderEntity {
     
     public UUID getCustomerId() { return customerId; }
     public void setCustomerId(UUID customerId) { this.customerId = customerId; }
+    
+    public GuestInfoData getGuestInfo() { return guestInfo; }
+    public void setGuestInfo(GuestInfoData guestInfo) { this.guestInfo = guestInfo; }
     
     public List<OrderItemData> getItems() { return items; }
     public void setItems(List<OrderItemData> items) { this.items = items; }
@@ -145,5 +153,15 @@ public class OrderEntity {
         BigDecimal amount,
         String currency,
         String status
+    ) {}
+    
+    public static record GuestInfoData(
+        String contactPhone,
+        String contactEmail,
+        String contactName,
+        String trackingToken,
+        Instant tokenGeneratedAt,
+        Instant tokenExpiresAt,
+        Instant createdAt
     ) {}
 }

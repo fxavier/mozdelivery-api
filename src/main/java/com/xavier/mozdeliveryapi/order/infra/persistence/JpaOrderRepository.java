@@ -30,6 +30,16 @@ public interface JpaOrderRepository extends JpaRepository<OrderEntity, UUID> {
     
     long countByTenantIdAndStatus(UUID tenantId, OrderStatus status);
     
+    // Guest order methods
+    @Query("SELECT o FROM OrderEntity o WHERE JSON_EXTRACT(o.guestInfo, '$.trackingToken') = :trackingToken")
+    java.util.Optional<OrderEntity> findByGuestTrackingToken(@Param("trackingToken") String trackingToken);
+    
+    List<OrderEntity> findByTenantIdAndGuestInfoIsNotNull(UUID tenantId);
+    
+    List<OrderEntity> findByTenantIdAndStatusAndGuestInfoIsNotNull(UUID tenantId, OrderStatus status);
+    
+    long countByTenantIdAndGuestInfoIsNotNull(UUID tenantId);
+    
     @Query("SELECT o FROM OrderEntity o WHERE o.tenantId = :tenantId ORDER BY o.createdAt DESC")
     List<OrderEntity> findByTenantIdOrderByCreatedAtDesc(@Param("tenantId") UUID tenantId);
 }
