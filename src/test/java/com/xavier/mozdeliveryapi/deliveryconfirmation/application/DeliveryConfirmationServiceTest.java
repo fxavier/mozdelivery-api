@@ -5,7 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.xavier.mozdeliveryapi.deliveryconfirmation.application.usecase.DCCAuditService;
+import com.xavier.mozdeliveryapi.deliveryconfirmation.application.usecase.DCCSecurityService;
 import com.xavier.mozdeliveryapi.deliveryconfirmation.application.usecase.DeliveryConfirmationService;
 import com.xavier.mozdeliveryapi.deliveryconfirmation.application.usecase.DeliveryConfirmationServiceImpl;
 import com.xavier.mozdeliveryapi.deliveryconfirmation.domain.entity.DeliveryConfirmationCode;
@@ -25,12 +31,22 @@ class DeliveryConfirmationServiceTest {
     private DeliveryConfirmationService deliveryConfirmationService;
     private DeliveryConfirmationCodeRepository repository;
     private DCCGenerationService generationService;
+    private DCCAuditService auditService;
+    private DCCSecurityService securityService;
     
     @BeforeEach
     void setUp() {
         repository = new DeliveryConfirmationCodeRepositoryImpl();
         generationService = new DCCGenerationServiceImpl();
-        deliveryConfirmationService = new DeliveryConfirmationServiceImpl(repository, generationService);
+        auditService = mock(DCCAuditService.class);
+        securityService = mock(DCCSecurityService.class);
+        
+        // Configure security service to allow validation attempts by default
+        when(securityService.canCourierAttemptValidation(anyString(), any(OrderId.class))).thenReturn(true);
+        when(securityService.detectSuspiciousActivity(anyString(), any(OrderId.class), anyString())).thenReturn(false);
+        
+        deliveryConfirmationService = new DeliveryConfirmationServiceImpl(
+            repository, generationService, auditService, securityService);
     }
     
     @Test
