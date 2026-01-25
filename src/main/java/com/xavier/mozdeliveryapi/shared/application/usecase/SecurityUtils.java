@@ -104,4 +104,45 @@ public class SecurityUtils {
         }
         return auth;
     }
+    
+    /**
+     * Get the current user ID from the security context.
+     */
+    public static String getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new AccessDeniedException("Authentication required");
+        }
+        return auth.getName();
+    }
+    
+    /**
+     * Get the current merchant ID from the security context.
+     * For API key authentication, this returns the merchant ID from the API key.
+     * For JWT authentication, this returns the merchant ID from the user's context.
+     */
+    public static String getCurrentMerchantId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new AccessDeniedException("Authentication required");
+        }
+        
+        // For API key authentication
+        if (auth.getDetails() instanceof com.xavier.mozdeliveryapi.shared.infra.config.ApiKeyAuthenticationFilter.ApiKeyAuthenticationDetails apiKeyDetails) {
+            return apiKeyDetails.getMerchantId();
+        }
+        
+        // For JWT authentication, we need to extract merchant ID from the token or user context
+        // This is a simplified implementation - in production you might need more sophisticated logic
+        if (auth instanceof org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken jwtAuth) {
+            org.springframework.security.oauth2.jwt.Jwt jwt = jwtAuth.getToken();
+            String merchantId = jwt.getClaimAsString("merchant_id");
+            if (merchantId != null) {
+                return merchantId;
+            }
+        }
+        
+        // Fallback - if no merchant context is available, throw exception
+        throw new AccessDeniedException("Merchant context required");
+    }
 }

@@ -139,7 +139,7 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
     - Implement courier approval process
     - _Requirements: 3B_
 
-  - [ ] 6.3 Update API Security
+  - [x] 6.3 Update API Security
     - Implement role-based endpoint protection
     - Add rate limiting per role and endpoint
     - Create API key management for merchant integrations
