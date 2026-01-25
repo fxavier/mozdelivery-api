@@ -67,7 +67,11 @@ public enum Permission {
     
     // System Administration
     SYSTEM_CONFIG("system:config", "Configure system settings"),
-    SYSTEM_MONITOR("system:monitor", "Monitor system health");
+    SYSTEM_MONITOR("system:monitor", "Monitor system health"),
+    
+    // API Key Management
+    MANAGE_API_KEYS("api_keys:manage", "Create, revoke, and manage API keys"),
+    VIEW_API_KEYS("api_keys:view", "View API key information");
     
     private final String code;
     private final String description;
@@ -103,7 +107,9 @@ public enum Permission {
                 // Analytics (own data)
                 ANALYTICS_READ, ANALYTICS_EXPORT,
                 // Payment (own transactions)
-                PAYMENT_READ
+                PAYMENT_READ,
+                // API key management
+                MANAGE_API_KEYS, VIEW_API_KEYS
             );
             
             case COURIER -> EnumSet.of(
