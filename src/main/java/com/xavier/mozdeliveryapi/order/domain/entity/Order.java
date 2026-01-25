@@ -14,6 +14,7 @@ import com.xavier.mozdeliveryapi.shared.domain.valueobject.MerchantId;
 import com.xavier.mozdeliveryapi.order.domain.event.OrderRefundRequestedEvent;
 import com.xavier.mozdeliveryapi.order.domain.event.OrderTimeoutEvent;
 import com.xavier.mozdeliveryapi.order.domain.event.OrderCreatedEvent;
+import com.xavier.mozdeliveryapi.order.domain.event.OrderCancelledEvent;
 import com.xavier.mozdeliveryapi.order.domain.event.OrderStatusChangedEvent;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.CancellationReason;
 import com.xavier.mozdeliveryapi.order.domain.valueobject.CustomerId;
