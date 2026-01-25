@@ -4,13 +4,22 @@ import java.util.Objects;
 
 import com.xavier.mozdeliveryapi.shared.domain.valueobject.OrderId;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 /**
  * Request DTO for completing a delivery with confirmation code.
  */
 public record CompleteDeliveryRequest(
+    @NotNull(message = "Order ID cannot be null")
     OrderId orderId,
+    
+    @NotBlank(message = "Confirmation code cannot be blank")
     String confirmationCode,
+    
+    @NotBlank(message = "Courier ID cannot be blank")
     String courierId,
+    
     String deliveryNotes
 ) {
     

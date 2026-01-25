@@ -1,8 +1,4 @@
 package com.xavier.mozdeliveryapi.compliance.domain.valueobject;
-import com.xavier.mozdeliveryapi.compliance.domain.entity.Consent;
-import com.xavier.mozdeliveryapi.order.domain.entity.Order;
-import com.xavier.mozdeliveryapi.payment.domain.entity.Payment;
-import com.xavier.mozdeliveryapi.payment.domain.entity.Refund;
 
 /**
  * Types of audit events that can be logged.
@@ -43,6 +39,16 @@ public enum AuditEventType {
     FRAUD_ATTEMPT("Fraud attempt detected"),
     SECURITY_BREACH("Security breach detected"),
     
+    // Delivery Confirmation Code Events
+    DCC_GENERATED("Delivery confirmation code generated"),
+    DCC_VALIDATED("Delivery confirmation code validated successfully"),
+    DCC_VALIDATION_FAILED("Delivery confirmation code validation failed"),
+    DCC_EXPIRED("Delivery confirmation code expired"),
+    DCC_MAX_ATTEMPTS_EXCEEDED("Maximum DCC validation attempts exceeded"),
+    DCC_LOCKOUT_TRIGGERED("DCC validation lockout triggered"),
+    DCC_RESENT("Delivery confirmation code resent"),
+    DCC_FORCE_EXPIRED("Delivery confirmation code force expired by admin"),
+    
     // System Events
     SYSTEM_ERROR("System error occurred"),
     CONFIGURATION_CHANGED("System configuration changed"),
@@ -64,7 +70,9 @@ public enum AuditEventType {
      */
     public boolean isSecurityEvent() {
         return this == ACCESS_DENIED || this == SUSPICIOUS_ACTIVITY || 
-               this == FRAUD_ATTEMPT || this == SECURITY_BREACH;
+               this == FRAUD_ATTEMPT || this == SECURITY_BREACH ||
+               this == DCC_VALIDATION_FAILED || this == DCC_MAX_ATTEMPTS_EXCEEDED ||
+               this == DCC_LOCKOUT_TRIGGERED;
     }
     
     /**
@@ -72,6 +80,8 @@ public enum AuditEventType {
      */
     public boolean isComplianceEvent() {
         return this == CONSENT_GIVEN || this == CONSENT_WITHDRAWN ||
-               this == DATA_PORTABILITY_REQUESTED || this == DATA_DELETION_REQUESTED;
+               this == DATA_PORTABILITY_REQUESTED || this == DATA_DELETION_REQUESTED ||
+               this == DCC_GENERATED || this == DCC_VALIDATED || this == DCC_EXPIRED ||
+               this == DCC_RESENT || this == DCC_FORCE_EXPIRED;
     }
 }

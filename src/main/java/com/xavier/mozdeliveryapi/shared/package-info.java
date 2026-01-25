@@ -5,6 +5,7 @@
  * that can be used by other modules in the system.
  */
 @org.springframework.modulith.ApplicationModule(
-    displayName = "Shared"
+    displayName = "Shared",
+    allowedDependencies = {}
 )
 package com.xavier.mozdeliveryapi.shared;

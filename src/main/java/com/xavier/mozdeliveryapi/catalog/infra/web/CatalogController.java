@@ -19,6 +19,10 @@ import com.xavier.mozdeliveryapi.catalog.application.dto.CatalogResponse;
 import com.xavier.mozdeliveryapi.catalog.application.dto.CreateCatalogRequest;
 import com.xavier.mozdeliveryapi.catalog.application.usecase.CatalogApplicationService;
 import com.xavier.mozdeliveryapi.catalog.domain.valueobject.CatalogStatus;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.Permission;
+import com.xavier.mozdeliveryapi.shared.domain.valueobject.UserRole;
+import com.xavier.mozdeliveryapi.shared.infra.config.RequirePermission;
+import com.xavier.mozdeliveryapi.shared.infra.config.RequireRole;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -52,7 +56,7 @@ public class CatalogController {
         @ApiResponse(responseCode = "403", description = "Access denied - merchant can only create their own catalogs")
     })
     @PostMapping
-    @PreAuthorize("hasAuthority('SCOPE_catalog:write')")
+    @RequirePermission(value = Permission.CATALOG_CREATE, checkMerchantAccess = true)
     public ResponseEntity<CatalogResponse> createCatalog(@Valid @RequestBody CreateCatalogRequest request) {
         CatalogResponse response = catalogApplicationService.createCatalog(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -68,7 +72,7 @@ public class CatalogController {
         @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @GetMapping("/{catalogId}")
-    @PreAuthorize("hasAuthority('SCOPE_catalog:read')")
+    @RequirePermission(Permission.CATALOG_READ)
     public ResponseEntity<CatalogResponse> getCatalog(
             @Parameter(description = "Catalog ID") @PathVariable String catalogId) {
         CatalogResponse response = catalogApplicationService.getCatalog(catalogId);

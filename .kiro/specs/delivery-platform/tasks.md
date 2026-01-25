@@ -108,13 +108,13 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
     - Add code expiration and retry limit management
     - _Requirements: 7A_
 
-  - [ ] 5.2 Implement DCC Validation and Security
+  - [x] 5.2 Implement DCC Validation and Security
     - Create code validation with attempt tracking
     - Implement lockout mechanisms for failed attempts
     - Add audit logging for all DCC operations
     - _Requirements: 7A, 9_
 
-  - [ ] 5.3 Create DCC APIs for Courier App
+  - [x] 5.3 Create DCC APIs for Courier App
     - Implement delivery completion with DCC validation
     - Add code resend functionality
     - Create admin override capabilities with audit trails
@@ -127,13 +127,13 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
 ### Phase 4: Role-Based Access Control
 
 - [ ] 6. User Management and RBAC
-  - [ ] 6.1 Implement Role-Based Authentication
+  - [x] 6.1 Implement Role-Based Authentication
     - Create user roles (Admin, Merchant, Courier, Client, Guest)
     - Implement OAuth2/OIDC with role-based claims
     - Add permission matrix enforcement
     - _Requirements: 3B, 13_
 
-  - [ ] 6.2 Implement Courier Registration and Management
+  - [x] 6.2 Implement Courier Registration and Management
     - Create courier onboarding workflow
     - Add vehicle and availability management
     - Implement courier approval process
