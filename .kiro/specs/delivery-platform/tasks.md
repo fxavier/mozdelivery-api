@@ -127,13 +127,13 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
 ### Phase 4: Role-Based Access Control
 
 - [ ] 6. User Management and RBAC
-  - [ ] 6.1 Implement Role-Based Authentication
+  - [x] 6.1 Implement Role-Based Authentication
     - Create user roles (Admin, Merchant, Courier, Client, Guest)
     - Implement OAuth2/OIDC with role-based claims
     - Add permission matrix enforcement
     - _Requirements: 3B, 13_
 
-  - [ ] 6.2 Implement Courier Registration and Management
+  - [x] 6.2 Implement Courier Registration and Management
     - Create courier onboarding workflow
     - Add vehicle and availability management
     - Implement courier approval process
