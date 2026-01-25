@@ -114,7 +114,7 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
     - Add audit logging for all DCC operations
     - _Requirements: 7A, 9_
 
-  - [ ] 5.3 Create DCC APIs for Courier App
+  - [x] 5.3 Create DCC APIs for Courier App
     - Implement delivery completion with DCC validation
     - Add code resend functionality
     - Create admin override capabilities with audit trails

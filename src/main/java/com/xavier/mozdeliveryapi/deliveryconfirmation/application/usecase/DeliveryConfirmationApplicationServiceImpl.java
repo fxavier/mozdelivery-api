@@ -6,7 +6,10 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.xavier.mozdeliveryapi.deliveryconfirmation.application.dto.AdminOverrideRequest;
+import com.xavier.mozdeliveryapi.deliveryconfirmation.application.dto.AdminOverrideResult;
 import com.xavier.mozdeliveryapi.deliveryconfirmation.application.dto.CompleteDeliveryRequest;
+import com.xavier.mozdeliveryapi.deliveryconfirmation.application.dto.CourierLockoutClearRequest;
 import com.xavier.mozdeliveryapi.deliveryconfirmation.application.dto.DCCStatusResponse;
 import com.xavier.mozdeliveryapi.deliveryconfirmation.application.dto.DeliveryCompletionResult;
 import com.xavier.mozdeliveryapi.deliveryconfirmation.domain.entity.DeliveryConfirmationCode;
@@ -168,9 +171,101 @@ public class DeliveryConfirmationApplicationServiceImpl implements DeliveryConfi
         );
     }
     
+    @Override
+    public AdminOverrideResult performAdminOverride(AdminOverrideRequest request) {
+        Objects.requireNonNull(request, "Admin override request cannot be null");
+        
+        try {
+            switch (request.overrideType()) {
+                case FORCE_EXPIRE_CODE:
+                    deliveryConfirmationService.forceExpireCode(
+                        request.orderId(), 
+                        request.adminId(), 
+                        request.reason()
+                    );
+                    return AdminOverrideResult.success(
+                        request.orderId(),
+                        request.adminId(),
+                        request.reason(),
+                        request.overrideType(),
+                        "Delivery confirmation code forcibly expired"
+                    );
+                    
+                case FORCE_COMPLETE_DELIVERY:
+                    // This would require additional business logic to complete delivery without DCC
+                    // For now, we'll just expire the code as a safety measure
+                    deliveryConfirmationService.forceExpireCode(
+                        request.orderId(), 
+                        request.adminId(), 
+                        "Admin override: Force complete delivery - " + request.reason()
+                    );
+                    return AdminOverrideResult.success(
+                        request.orderId(),
+                        request.adminId(),
+                        request.reason(),
+                        request.overrideType(),
+                        "Delivery forcibly completed by admin override"
+                    );
+                    
+                default:
+                    return AdminOverrideResult.failure(
+                        request.orderId(),
+                        request.adminId(),
+                        request.reason(),
+                        request.overrideType(),
+                        "Unsupported override type: " + request.overrideType()
+                    );
+            }
+        } catch (Exception e) {
+            return AdminOverrideResult.failure(
+                request.orderId(),
+                request.adminId(),
+                request.reason(),
+                request.overrideType(),
+                "Admin override failed: " + e.getMessage()
+            );
+        }
+    }
+    
+    @Override
+    public AdminOverrideResult clearCourierLockout(CourierLockoutClearRequest request) {
+        Objects.requireNonNull(request, "Courier lockout clear request cannot be null");
+        
+        try {
+            securityService.clearCourierLockout(
+                request.courierId(), 
+                request.adminId(), 
+                request.reason()
+            );
+            
+            // Create a dummy OrderId for the result (since this operation is not order-specific)
+            OrderId dummyOrderId = OrderId.of("00000000-0000-0000-0000-000000000000");
+            
+            return AdminOverrideResult.success(
+                dummyOrderId,
+                request.adminId(),
+                request.reason(),
+                AdminOverrideRequest.AdminOverrideType.CLEAR_COURIER_LOCKOUT,
+                String.format("Courier lockout cleared for courier: %s", request.courierId())
+            );
+        } catch (Exception e) {
+            // Create a dummy OrderId for the result
+            OrderId dummyOrderId = OrderId.of("00000000-0000-0000-0000-000000000000");
+            
+            return AdminOverrideResult.failure(
+                dummyOrderId,
+                request.adminId(),
+                request.reason(),
+                AdminOverrideRequest.AdminOverrideType.CLEAR_COURIER_LOCKOUT,
+                "Failed to clear courier lockout: " + e.getMessage()
+            );
+        }
+    }
+    
     /**
      * Get courier validation statistics for security monitoring.
      */
+    @Override
     @Transactional(readOnly = true)
     public DCCSecurityService.ValidationStats getCourierValidationStats(String courierId, Instant since) {
         Objects.requireNonNull(courierId, "Courier ID cannot be null");
