@@ -15,6 +15,10 @@
     - **Parceiro/Backoffice Web** (React/Next.js + Tailwind) para gestão e dashboards.
     - **Motor de backend** (Java 21 + **Spring Modulith**/Hexagonal + Postgres + Redis + Kafka + Keycloak).
 
+### Documentação de uso
+
+Consulte o guia detalhado de utilização da API em [`docs/USAGE.md`](docs/USAGE.md).
+
 ---
 
 ## 2) Personas & Papéis
