@@ -7,6 +7,9 @@ import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/merchants/presentation/pages/merchant_list_page.dart';
 import '../../features/merchants/presentation/pages/merchant_detail_page.dart';
 import '../../features/orders/presentation/pages/order_tracking_page.dart';
+import '../../features/orders/presentation/pages/guest_checkout_page.dart';
+import '../../features/orders/presentation/pages/order_confirmation_page.dart';
+import '../../features/orders/data/models/order_models.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../storage/secure_storage_service.dart';
 import '../di/injection.dart';
@@ -19,6 +22,8 @@ class AppRouter {
   static const String merchantDetail = '/merchants/:merchantId';
   static const String orderTracking = '/orders/:orderId/track';
   static const String guestOrderTracking = '/guest/orders/track';
+  static const String guestCheckout = '/guest-checkout';
+  static const String orderConfirmation = '/order-confirmation';
   static const String profile = '/profile';
 
   static final GoRouter router = GoRouter(
@@ -70,6 +75,19 @@ class AppRouter {
         },
       ),
       GoRoute(
+        path: guestCheckout,
+        name: 'guestCheckout',
+        builder: (context, state) => const GuestCheckoutPage(),
+      ),
+      GoRoute(
+        path: orderConfirmation,
+        name: 'orderConfirmation',
+        builder: (context, state) {
+          final orderResponse = state.extra as GuestOrderResponse;
+          return OrderConfirmationPage(orderResponse: orderResponse);
+        },
+      ),
+      GoRoute(
         path: profile,
         name: 'profile',
         builder: (context, state) => const ProfilePage(),
@@ -86,7 +104,9 @@ class AppRouter {
     final isPublicRoute = state.matchedLocation == home || 
                          state.matchedLocation == merchants ||
                          state.matchedLocation.startsWith('/merchants/') ||
-                         state.matchedLocation == guestOrderTracking;
+                         state.matchedLocation == guestOrderTracking ||
+                         state.matchedLocation == guestCheckout ||
+                         state.matchedLocation == orderConfirmation;
 
     // Allow access to public routes regardless of authentication status
     if (isPublicRoute) {

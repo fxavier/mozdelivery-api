@@ -22,6 +22,14 @@ import 'package:client_app/features/merchants/presentation/bloc/merchant_browsin
     as _i368;
 import 'package:client_app/features/merchants/presentation/bloc/merchant_detail_bloc.dart'
     as _i515;
+import 'package:client_app/features/orders/data/repositories/order_repository_impl.dart'
+    as _i1017;
+import 'package:client_app/features/orders/domain/repositories/order_repository.dart'
+    as _i665;
+import 'package:client_app/features/orders/presentation/bloc/cart_bloc.dart'
+    as _i782;
+import 'package:client_app/features/orders/presentation/bloc/guest_checkout_bloc.dart'
+    as _i332;
 import 'package:dio/dio.dart' as _i361;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
@@ -56,6 +64,12 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i772.MerchantRepositoryImpl(gh<_i330.ApiService>()));
     gh.singleton<_i577.NetworkInterceptor>(
         () => _i577.NetworkInterceptor(gh<_i791.SecureStorageService>()));
+    gh.lazySingleton<_i665.OrderRepository>(() => _i1017.OrderRepositoryImpl(
+          gh<_i330.ApiService>(),
+          gh<_i460.SharedPreferences>(),
+        ));
+    gh.factory<_i782.CartBloc>(
+        () => _i782.CartBloc(gh<_i665.OrderRepository>()));
     gh.factory<_i725.AuthBloc>(() => _i725.AuthBloc(
           gh<_i330.ApiService>(),
           gh<_i791.SecureStorageService>(),
@@ -64,6 +78,10 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i515.MerchantDetailBloc(gh<_i439.MerchantRepository>()));
     gh.factory<_i368.MerchantBrowsingBloc>(
         () => _i368.MerchantBrowsingBloc(gh<_i439.MerchantRepository>()));
+    gh.factory<_i332.GuestCheckoutBloc>(() => _i332.GuestCheckoutBloc(
+          gh<_i665.OrderRepository>(),
+          gh<_i791.SecureStorageService>(),
+        ));
     return this;
   }
 }
