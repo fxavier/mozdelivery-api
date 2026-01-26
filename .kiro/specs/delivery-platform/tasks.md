@@ -173,7 +173,7 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
     - _Requirements: 4A, 11_
 
 - [ ] 8. Flutter Courier App
-  - [ ] 8.1 Set up Flutter project for Courier app
+  - [x] 8.1 Set up Flutter project for Courier app
     - Create separate Flutter project for courier operations
     - Implement courier authentication and profile management
     - Add location services and real-time tracking
