@@ -194,7 +194,7 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
 ### Phase 6: Merchant Web Backoffice
 
 - [ ] 9. Angular Merchant Backoffice
-  - [ ] 9.1 Set up Angular 20 project
+  - [x] 9.1 Set up Angular 20 project
     - Create Angular project with proper architecture
     - Set up TailwindCSS and component library
     - Configure NgRx for state management
