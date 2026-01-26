@@ -55,8 +55,8 @@ class ApiClient {
     return response.data;
   }
 
-  Future<void> resendGuestDeliveryCode(Map<String, dynamic> data) async {
-    await _dio.post('/api/public/orders/guest/resend-code', data: data);
+  Future<void> resendGuestDeliveryCode(String trackingToken) async {
+    await _dio.post('/api/public/orders/guest/resend-code', data: {'token': trackingToken});
   }
 
   // Authenticated endpoints
@@ -123,6 +123,9 @@ class ApiService {
 
   Future<dynamic> trackGuestOrder(String trackingToken) =>
       handleApiCall(() => _apiClient.trackGuestOrder(trackingToken));
+
+  Future<void> resendGuestDeliveryCode(String trackingToken) =>
+      handleApiCall(() => _apiClient.resendGuestDeliveryCode(trackingToken));
 
   Future<dynamic> login(Map<String, dynamic> credentials) =>
       handleApiCall(() => _apiClient.login(credentials));
