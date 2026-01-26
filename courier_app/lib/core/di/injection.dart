@@ -7,6 +7,7 @@ import 'package:local_auth/local_auth.dart';
 
 import '../../features/deliveries/domain/repositories/delivery_repository.dart';
 import '../../features/deliveries/data/repositories/delivery_repository_impl.dart';
+import '../services/image_upload_service.dart';
 import 'injection.config.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -56,4 +57,7 @@ abstract class RegisterModule {
 
   @singleton
   DeliveryRepository deliveryRepository(Dio dio) => DeliveryRepositoryImpl(dio);
+
+  @singleton
+  ImageUploadService imageUploadService(Dio dio) => ImageUploadService(dio);
 }

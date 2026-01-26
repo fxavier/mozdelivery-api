@@ -10,6 +10,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:courier_app/core/di/injection.dart' as _i469;
 import 'package:courier_app/core/network/api_client.dart' as _i294;
+import 'package:courier_app/core/services/image_upload_service.dart' as _i256;
 import 'package:courier_app/core/storage/secure_storage_service.dart' as _i362;
 import 'package:courier_app/features/auth/presentation/bloc/auth_bloc.dart'
     as _i941;
@@ -43,6 +44,8 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i152.LocalAuthentication>(() => registerModule.localAuth);
     gh.singleton<_i737.DeliveryRepository>(
         () => registerModule.deliveryRepository(gh<_i361.Dio>()));
+    gh.singleton<_i256.ImageUploadService>(
+        () => registerModule.imageUploadService(gh<_i361.Dio>()));
     gh.singleton<_i294.ApiClient>(() => _i294.ApiClient(gh<_i361.Dio>()));
     gh.singleton<_i306.LocationService>(
         () => _i306.LocationService(gh<_i974.Logger>()));
