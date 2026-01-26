@@ -7,14 +7,17 @@ import 'core/di/injection.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
+import 'features/auth/presentation/bloc/auth_state.dart';
 import 'features/auth/presentation/pages/splash_page.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/home/presentation/pages/home_page.dart';
+import 'features/deliveries/presentation/bloc/delivery_bloc.dart';
+import 'features/deliveries/domain/repositories/delivery_repository.dart';
 
 // Background message handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print('Handling a background message: ${message.messageId}');
+  // Use logger instead of print in production
 }
 
 void main() async {
@@ -37,8 +40,15 @@ class CourierApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<AuthBloc>()..add(const AuthStatusChecked()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => getIt<AuthBloc>()..add(const AuthStatusChecked()),
+        ),
+        BlocProvider(
+          create: (context) => DeliveryBloc(getIt<DeliveryRepository>()),
+        ),
+      ],
       child: MaterialApp(
         title: 'Courier App',
         theme: AppTheme.lightTheme,

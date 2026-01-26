@@ -21,8 +21,10 @@ DeliveryAssignmentResponse _$DeliveryAssignmentResponseFromJson(
       status: json['status'] as String,
       totalAmount: (json['totalAmount'] as num).toDouble(),
       currency: json['currency'] as String,
-      estimatedPickupTime: DateTime.parse(json['estimatedPickupTime'] as String),
-      estimatedDeliveryTime: DateTime.parse(json['estimatedDeliveryTime'] as String),
+      estimatedPickupTime:
+          DateTime.parse(json['estimatedPickupTime'] as String),
+      estimatedDeliveryTime:
+          DateTime.parse(json['estimatedDeliveryTime'] as String),
       specialInstructions: json['specialInstructions'] as String?,
       items: (json['items'] as List<dynamic>)
           .map((e) => OrderItem.fromJson(e as Map<String, dynamic>))
@@ -91,14 +93,13 @@ Map<String, dynamic> _$DeliveryResponseToJson(DeliveryResponse instance) =>
 OrderItem _$OrderItemFromJson(Map<String, dynamic> json) => OrderItem(
       productId: json['productId'] as String,
       productName: json['productName'] as String,
-      quantity: json['quantity'] as int,
+      quantity: (json['quantity'] as num).toInt(),
       unitPrice: (json['unitPrice'] as num).toDouble(),
       totalPrice: (json['totalPrice'] as num).toDouble(),
       specialInstructions: json['specialInstructions'] as String?,
     );
 
-Map<String, dynamic> _$OrderItemToJson(OrderItem instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$OrderItemToJson(OrderItem instance) => <String, dynamic>{
       'productId': instance.productId,
       'productName': instance.productName,
       'quantity': instance.quantity,
@@ -113,7 +114,7 @@ DeliveryRoute _$DeliveryRouteFromJson(Map<String, dynamic> json) =>
           .map((e) => RoutePoint.fromJson(e as Map<String, dynamic>))
           .toList(),
       totalDistance: (json['totalDistance'] as num).toDouble(),
-      estimatedDuration: json['estimatedDuration'] as int,
+      estimatedDuration: (json['estimatedDuration'] as num).toInt(),
       polyline: json['polyline'] as String,
     );
 
