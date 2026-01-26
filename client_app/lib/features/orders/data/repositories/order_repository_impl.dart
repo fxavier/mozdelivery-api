@@ -31,10 +31,7 @@ class OrderRepositoryImpl implements OrderRepository {
 
   @override
   Future<void> resendGuestDeliveryCode(String trackingToken) async {
-    await _apiService.handleApiCall(() async {
-      // For now, we'll create a direct call since we need access to the resend method
-      throw UnimplementedError('Resend delivery code not yet implemented in API client');
-    });
+    await _apiService.resendGuestDeliveryCode(trackingToken);
   }
 
   @override

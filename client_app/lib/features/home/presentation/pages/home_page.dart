@@ -223,15 +223,26 @@ class HomeView extends StatelessWidget {
   }
 
   void _showTrackOrderDialog(BuildContext context) {
+    final tokenController = TextEditingController();
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Track Order'),
-        content: const TextField(
-          decoration: InputDecoration(
-            labelText: 'Order ID or Tracking Token',
-            hintText: 'Enter your order ID or tracking token',
+        content: TextField(
+          controller: tokenController,
+          decoration: const InputDecoration(
+            labelText: 'Tracking Token',
+            hintText: 'Enter your tracking token',
+            helperText: 'Found in your order confirmation',
           ),
+          textInputAction: TextInputAction.go,
+          onSubmitted: (value) {
+            if (value.trim().isNotEmpty) {
+              Navigator.of(context).pop();
+              context.push('/guest/orders/track?token=${value.trim()}');
+            }
+          },
         ),
         actions: [
           TextButton(
@@ -240,8 +251,11 @@ class HomeView extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop();
-              // TODO: Implement order tracking
+              final token = tokenController.text.trim();
+              if (token.isNotEmpty) {
+                Navigator.of(context).pop();
+                context.push('/guest/orders/track?token=$token');
+              }
             },
             child: const Text('Track'),
           ),

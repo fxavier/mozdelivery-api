@@ -166,7 +166,7 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
     - Add order confirmation and DCC display
     - _Requirements: 4A, 11_
 
-  - [ ] 7.4 Implement Order Tracking
+  - [x] 7.4 Implement Order Tracking
     - Create order tracking screens for guests and registered users
     - Add real-time status updates
     - Implement DCC management (view, resend)

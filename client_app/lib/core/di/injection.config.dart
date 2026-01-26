@@ -30,6 +30,8 @@ import 'package:client_app/features/orders/presentation/bloc/cart_bloc.dart'
     as _i782;
 import 'package:client_app/features/orders/presentation/bloc/guest_checkout_bloc.dart'
     as _i332;
+import 'package:client_app/features/orders/presentation/bloc/order_tracking_bloc.dart'
+    as _i304;
 import 'package:dio/dio.dart' as _i361;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
@@ -70,6 +72,8 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i782.CartBloc>(
         () => _i782.CartBloc(gh<_i665.OrderRepository>()));
+    gh.factory<_i304.OrderTrackingBloc>(
+        () => _i304.OrderTrackingBloc(gh<_i665.OrderRepository>()));
     gh.factory<_i725.AuthBloc>(() => _i725.AuthBloc(
           gh<_i330.ApiService>(),
           gh<_i791.SecureStorageService>(),
