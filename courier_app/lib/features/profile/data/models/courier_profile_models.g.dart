@@ -15,8 +15,10 @@ CourierProfileResponse _$CourierProfileResponseFromJson(
       lastName: json['lastName'] as String,
       phoneNumber: json['phoneNumber'] as String,
       city: json['city'] as String,
-      vehicleInfo: VehicleInfo.fromJson(json['vehicleInfo'] as Map<String, dynamic>),
-      availabilityInfo: AvailabilityInfo.fromJson(json['availabilityInfo'] as Map<String, dynamic>),
+      vehicleInfo:
+          VehicleInfo.fromJson(json['vehicleInfo'] as Map<String, dynamic>),
+      availabilityInfo: AvailabilityInfo.fromJson(
+          json['availabilityInfo'] as Map<String, dynamic>),
       stats: CourierStats.fromJson(json['stats'] as Map<String, dynamic>),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
@@ -93,17 +95,16 @@ Map<String, dynamic> _$AvailabilityScheduleToJson(
       'isActive': instance.isActive,
     };
 
-CourierStats _$CourierStatsFromJson(Map<String, dynamic> json) =>
-    CourierStats(
-      totalDeliveries: json['totalDeliveries'] as int,
-      completedDeliveries: json['completedDeliveries'] as int,
-      cancelledDeliveries: json['cancelledDeliveries'] as int,
+CourierStats _$CourierStatsFromJson(Map<String, dynamic> json) => CourierStats(
+      totalDeliveries: (json['totalDeliveries'] as num).toInt(),
+      completedDeliveries: (json['completedDeliveries'] as num).toInt(),
+      cancelledDeliveries: (json['cancelledDeliveries'] as num).toInt(),
       averageRating: (json['averageRating'] as num).toDouble(),
-      totalRatings: json['totalRatings'] as int,
+      totalRatings: (json['totalRatings'] as num).toInt(),
       totalEarnings: (json['totalEarnings'] as num).toDouble(),
-      deliveriesToday: json['deliveriesToday'] as int,
-      deliveriesThisWeek: json['deliveriesThisWeek'] as int,
-      deliveriesThisMonth: json['deliveriesThisMonth'] as int,
+      deliveriesToday: (json['deliveriesToday'] as num).toInt(),
+      deliveriesThisWeek: (json['deliveriesThisWeek'] as num).toInt(),
+      deliveriesThisMonth: (json['deliveriesThisMonth'] as num).toInt(),
     );
 
 Map<String, dynamic> _$CourierStatsToJson(CourierStats instance) =>

@@ -5,16 +5,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:local_auth/local_auth.dart';
 
-import '../network/api_client.dart';
-import '../storage/secure_storage_service.dart';
-import '../../features/location/data/services/location_service.dart';
+import '../../features/deliveries/domain/repositories/delivery_repository.dart';
+import '../../features/deliveries/data/repositories/delivery_repository_impl.dart';
 import 'injection.config.dart';
 
 final GetIt getIt = GetIt.instance;
 
 @InjectableInit()
 Future<void> configureDependencies() async {
-  await getIt.init();
+  getIt.init();
 }
 
 @module
@@ -48,10 +47,13 @@ abstract class RegisterModule {
       lineLength: 120,
       colors: true,
       printEmojis: true,
-      printTime: true,
+      dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
     ),
   );
 
   @singleton
   LocalAuthentication get localAuth => LocalAuthentication();
+
+  @singleton
+  DeliveryRepository deliveryRepository(Dio dio) => DeliveryRepositoryImpl(dio);
 }

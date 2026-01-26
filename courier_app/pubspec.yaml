@@ -32,6 +32,7 @@ dependencies:
   # Maps and Navigation
   google_maps_flutter: ^2.5.0
   flutter_polyline_points: ^2.0.0
+  url_launcher: ^6.2.2
   
   # Authentication & Security
   flutter_secure_storage: ^9.0.0
@@ -69,13 +70,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   
-  assets:
-    - assets/images/
-    - assets/icons/
+  # assets:
+  #   - assets/images/
+  #   - assets/icons/
     
-  fonts:
-    - family: Roboto
-      fonts:
-        - asset: assets/fonts/Roboto-Regular.ttf
-        - asset: assets/fonts/Roboto-Bold.ttf
-          weight: 700
+  # fonts:
+  #   - family: Roboto
+  #     fonts:
+  #       - asset: assets/fonts/Roboto-Regular.ttf
+  #       - asset: assets/fonts/Roboto-Bold.ttf
+  #         weight: 700
