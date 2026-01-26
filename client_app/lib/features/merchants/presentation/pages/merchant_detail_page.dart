@@ -8,6 +8,10 @@ import '../bloc/merchant_detail_state.dart';
 import '../widgets/product_card.dart';
 import '../widgets/category_chip.dart';
 import '../../data/models/merchant_model.dart';
+import '../../../orders/presentation/bloc/cart_bloc.dart';
+import '../../../orders/presentation/bloc/cart_event.dart';
+import '../../../orders/presentation/widgets/cart_widget.dart';
+import '../../../orders/domain/entities/cart.dart';
 import '../../../../core/di/injection.dart';
 
 class MerchantDetailPage extends StatelessWidget {
@@ -20,9 +24,16 @@ class MerchantDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<MerchantDetailBloc>()
-        ..add(LoadMerchantDetail(merchantId: merchantId)),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => getIt<MerchantDetailBloc>()
+            ..add(LoadMerchantDetail(merchantId: merchantId)),
+        ),
+        BlocProvider(
+          create: (context) => getIt<CartBloc>()..add(LoadCart()),
+        ),
+      ],
       child: const MerchantDetailView(),
     );
   }
@@ -91,52 +102,60 @@ class _MerchantDetailViewState extends State<MerchantDetailView> {
               title: Text(state.merchant.displayName),
               elevation: 0,
             ),
-            body: CustomScrollView(
-              slivers: [
-                // Merchant Header
-                SliverToBoxAdapter(
-                  child: _buildMerchantHeader(context, state.merchant),
+            body: Column(
+              children: [
+                Expanded(
+                  child: CustomScrollView(
+                    slivers: [
+                      // Merchant Header
+                      SliverToBoxAdapter(
+                        child: _buildMerchantHeader(context, state.merchant),
+                      ),
+
+                      // Catalogs
+                      if (state.catalogs.isNotEmpty)
+                        SliverToBoxAdapter(
+                          child: _buildCatalogSection(context, state),
+                        ),
+
+                      // Categories
+                      if (state.categories.isNotEmpty)
+                        SliverToBoxAdapter(
+                          child: _buildCategorySection(context, state),
+                        ),
+
+                      // Product Search
+                      if (state.selectedCategoryId != null)
+                        SliverToBoxAdapter(
+                          child: _buildProductSearch(context, state),
+                        ),
+
+                      // Products
+                      if (state.filteredProducts.isNotEmpty)
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final product = state.filteredProducts[index];
+                              return ProductCard(
+                                product: product,
+                                onTap: () => _showProductDetails(context, product, state.merchant),
+                                onAddToCart: () => _addToCart(context, product, state.merchant),
+                              );
+                            },
+                            childCount: state.filteredProducts.length,
+                          ),
+                        ),
+
+                      // Empty State
+                      if (state.selectedCategoryId != null && state.filteredProducts.isEmpty)
+                        SliverToBoxAdapter(
+                          child: _buildEmptyProductsState(context, state),
+                        ),
+                    ],
+                  ),
                 ),
-
-                // Catalogs
-                if (state.catalogs.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: _buildCatalogSection(context, state),
-                  ),
-
-                // Categories
-                if (state.categories.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: _buildCategorySection(context, state),
-                  ),
-
-                // Product Search
-                if (state.selectedCategoryId != null)
-                  SliverToBoxAdapter(
-                    child: _buildProductSearch(context, state),
-                  ),
-
-                // Products
-                if (state.filteredProducts.isNotEmpty)
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final product = state.filteredProducts[index];
-                        return ProductCard(
-                          product: product,
-                          onTap: () => _showProductDetails(context, product),
-                          onAddToCart: () => _addToCart(context, product),
-                        );
-                      },
-                      childCount: state.filteredProducts.length,
-                    ),
-                  ),
-
-                // Empty State
-                if (state.selectedCategoryId != null && state.filteredProducts.isEmpty)
-                  SliverToBoxAdapter(
-                    child: _buildEmptyProductsState(context, state),
-                  ),
+                // Cart Widget
+                const CartWidget(),
               ],
             ),
           );
@@ -437,7 +456,7 @@ class _MerchantDetailViewState extends State<MerchantDetailView> {
     );
   }
 
-  void _showProductDetails(BuildContext context, product) {
+  void _showProductDetails(BuildContext context, product, MerchantModel merchant) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -483,12 +502,15 @@ class _MerchantDetailViewState extends State<MerchantDetailView> {
                 ),
               ],
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _addToCart(context, product);
-                },
-                child: const Text('Add to Cart'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _addToCart(context, product, merchant);
+                  },
+                  child: const Text('Add to Cart'),
+                ),
               ),
             ],
           ),
@@ -497,14 +519,28 @@ class _MerchantDetailViewState extends State<MerchantDetailView> {
     );
   }
 
-  void _addToCart(BuildContext context, product) {
+  void _addToCart(BuildContext context, product, MerchantModel merchant) {
+    final cartItem = CartItem(
+      productId: product.id,
+      productName: product.name,
+      price: product.price.toDouble(),
+      quantity: 1,
+      imageUrl: product.imageUrls?.isNotEmpty == true ? product.imageUrls!.first : null,
+    );
+
+    context.read<CartBloc>().add(AddToCart(
+      merchantId: merchant.id,
+      merchantName: merchant.displayName,
+      item: cartItem,
+    ));
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${product.name} added to cart'),
         action: SnackBarAction(
           label: 'View Cart',
           onPressed: () {
-            // TODO: Navigate to cart
+            // Cart is already visible at the bottom
           },
         ),
       ),

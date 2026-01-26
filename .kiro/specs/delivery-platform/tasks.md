@@ -160,7 +160,7 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
     - Add search and filtering capabilities
     - _Requirements: 4A, 11_
 
-  - [ ] 7.3 Implement Guest Checkout Flow
+  - [x] 7.3 Implement Guest Checkout Flow
     - Create guest order placement screens
     - Implement delivery address and contact forms
     - Add order confirmation and DCC display
