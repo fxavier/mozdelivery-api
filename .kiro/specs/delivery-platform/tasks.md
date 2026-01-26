@@ -154,7 +154,7 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
     - Add authentication and guest mode support
     - _Requirements: 11_
 
-  - [ ] 7.2 Implement Public Browsing Features
+  - [x] 7.2 Implement Public Browsing Features
     - Create merchant discovery and browsing screens
     - Implement catalog and product browsing
     - Add search and filtering capabilities
