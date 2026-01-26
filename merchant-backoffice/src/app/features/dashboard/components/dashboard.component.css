@@ -1,0 +1,60 @@
+/* Dashboard component specific styles */
+
+.stats-card {
+  @apply bg-white rounded-lg shadow-sm border border-secondary-200 p-6 hover:shadow-md transition-shadow duration-200;
+}
+
+.quick-action-btn {
+  @apply flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md transition-colors duration-200;
+}
+
+.activity-item {
+  @apply flex items-center space-x-3 py-2;
+}
+
+.activity-dot {
+  @apply h-2 w-2 rounded-full;
+}
+
+.activity-dot.completed {
+  @apply bg-green-400;
+}
+
+.activity-dot.pending {
+  @apply bg-yellow-400;
+}
+
+.activity-dot.new {
+  @apply bg-blue-400;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .quick-actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Animation for stats cards */
+.stats-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Loading states */
+.loading-skeleton {
+  @apply animate-pulse bg-secondary-200 rounded;
+}
