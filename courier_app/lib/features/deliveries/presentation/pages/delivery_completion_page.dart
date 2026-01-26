@@ -5,7 +5,10 @@ import '../../domain/entities/delivery.dart';
 import '../bloc/delivery_bloc.dart';
 import '../bloc/delivery_event.dart';
 import '../bloc/delivery_state.dart';
+import '../widgets/proof_of_delivery_widget.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/services/image_upload_service.dart';
+import '../../../../core/di/injection.dart';
 
 class DeliveryCompletionPage extends StatefulWidget {
   final Delivery delivery;
@@ -23,8 +26,11 @@ class _DeliveryCompletionPageState extends State<DeliveryCompletionPage> {
   final _formKey = GlobalKey<FormState>();
   final _confirmationCodeController = TextEditingController();
   final _notesController = TextEditingController();
+  final ImageUploadService _imageUploadService = getIt<ImageUploadService>();
+  
   Position? _currentPosition;
   bool _isLoading = false;
+  String? _proofOfDeliveryImagePath;
 
   @override
   void initState() {
@@ -86,6 +92,8 @@ class _DeliveryCompletionPageState extends State<DeliveryCompletionPage> {
                 _buildConfirmationCodeField(),
                 const SizedBox(height: 16),
                 _buildNotesField(),
+                const SizedBox(height: 16),
+                _buildProofOfDeliveryWidget(),
                 const SizedBox(height: 24),
                 _buildLocationInfo(),
                 const SizedBox(height: 32),
@@ -220,6 +228,17 @@ class _DeliveryCompletionPageState extends State<DeliveryCompletionPage> {
     );
   }
 
+  Widget _buildProofOfDeliveryWidget() {
+    return ProofOfDeliveryWidget(
+      onProofCaptured: (imagePath) {
+        setState(() {
+          _proofOfDeliveryImagePath = imagePath;
+        });
+      },
+      initialImagePath: _proofOfDeliveryImagePath,
+    );
+  }
+
   Widget _buildLocationInfo() {
     return Card(
       child: Padding(
@@ -296,31 +315,76 @@ class _DeliveryCompletionPageState extends State<DeliveryCompletionPage> {
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-      setState(() {
-        _currentPosition = position;
-      });
+      if (mounted) {
+        setState(() {
+          _currentPosition = position;
+        });
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to get location: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to get location: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
-  void _completeDelivery() {
+  void _completeDelivery() async {
     if (_formKey.currentState!.validate() && _currentPosition != null) {
-      final bloc = context.read<DeliveryBloc>();
-      bloc.add(
-        CompleteDelivery(
-          widget.delivery.deliveryId,
-          _confirmationCodeController.text,
-          _currentPosition!.latitude,
-          _currentPosition!.longitude,
-          notes: _notesController.text.isNotEmpty ? _notesController.text : null,
-        ),
-      );
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        String? imageUrl;
+        
+        // Upload proof of delivery image if provided
+        if (_proofOfDeliveryImagePath != null) {
+          try {
+            imageUrl = await _imageUploadService.uploadProofOfDeliveryImage(_proofOfDeliveryImagePath!);
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Failed to upload proof of delivery: $e'),
+                  backgroundColor: Colors.orange,
+                ),
+              );
+            }
+            // Continue with delivery completion even if image upload fails
+          }
+        }
+
+        // Complete the delivery
+        if (mounted) {
+          final bloc = context.read<DeliveryBloc>();
+          bloc.add(
+            CompleteDelivery(
+              widget.delivery.deliveryId,
+              _confirmationCodeController.text,
+              _currentPosition!.latitude,
+              _currentPosition!.longitude,
+              notes: _notesController.text.isNotEmpty ? _notesController.text : null,
+              proofOfDeliveryImageUrl: imageUrl,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to complete delivery: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     }
   }
 }
