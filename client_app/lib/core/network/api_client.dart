@@ -15,48 +15,48 @@ class ApiClient {
     if (city != null) queryParams['city'] = city;
     if (vertical != null) queryParams['vertical'] = vertical;
     
-    final response = await _dio.get('/public/merchants', queryParameters: queryParams);
+    final response = await _dio.get('/api/public/merchants', queryParameters: queryParams);
     return response.data;
   }
 
   Future<dynamic> getMerchant(String merchantId) async {
-    final response = await _dio.get('/public/merchants/$merchantId');
+    final response = await _dio.get('/api/public/merchants/$merchantId');
     return response.data;
   }
 
   Future<List<dynamic>> getMerchantCatalogs(String merchantId) async {
-    final response = await _dio.get('/public/merchants/$merchantId/catalogs');
+    final response = await _dio.get('/api/public/merchants/$merchantId/catalogs');
     return response.data;
   }
 
   Future<List<dynamic>> getCatalogCategories(String catalogId) async {
-    final response = await _dio.get('/public/catalogs/$catalogId/categories');
+    final response = await _dio.get('/api/public/catalogs/$catalogId/categories');
     return response.data;
   }
 
   Future<List<dynamic>> getCategoryProducts(String categoryId) async {
-    final response = await _dio.get('/public/categories/$categoryId/products');
+    final response = await _dio.get('/api/public/categories/$categoryId/products');
     return response.data;
   }
 
   Future<dynamic> getProduct(String productId) async {
-    final response = await _dio.get('/public/products/$productId');
+    final response = await _dio.get('/api/public/products/$productId');
     return response.data;
   }
 
   // Guest checkout endpoints
   Future<dynamic> createGuestOrder(Map<String, dynamic> orderData) async {
-    final response = await _dio.post('/public/orders/guest', data: orderData);
+    final response = await _dio.post('/api/public/orders/guest', data: orderData);
     return response.data;
   }
 
   Future<dynamic> trackGuestOrder(String trackingToken) async {
-    final response = await _dio.get('/public/orders/guest/track', queryParameters: {'token': trackingToken});
+    final response = await _dio.get('/api/public/orders/guest/track', queryParameters: {'token': trackingToken});
     return response.data;
   }
 
   Future<void> resendGuestDeliveryCode(Map<String, dynamic> data) async {
-    await _dio.post('/public/orders/guest/resend-code', data: data);
+    await _dio.post('/api/public/orders/guest/resend-code', data: data);
   }
 
   // Authenticated endpoints
