@@ -22,6 +22,14 @@ export const routes: Routes = [
     }
   },
   {
+    path: 'catalog',
+    loadComponent: () => import('./features/catalog/components/catalog-management/catalog-management.component').then(m => m.CatalogManagementComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { 
+      roles: [UserRole.MERCHANT, UserRole.ADMIN]
+    }
+  },
+  {
     path: 'unauthorized',
     loadComponent: () => import('./shared/components/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent)
   },

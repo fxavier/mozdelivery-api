@@ -1,0 +1,118 @@
+/* Category Management Styles */
+
+.category-item {
+  @apply px-6 py-4 hover:bg-gray-50 transition-colors duration-150 cursor-move;
+}
+
+.category-item.dragging {
+  @apply opacity-50;
+}
+
+.category-item:hover .drag-handle {
+  @apply text-gray-600;
+}
+
+.drag-handle {
+  @apply h-5 w-5 text-gray-400 transition-colors duration-150;
+}
+
+.category-icon {
+  @apply h-10 w-10 bg-blue-100 rounded-md flex items-center justify-center;
+}
+
+.category-info {
+  @apply flex-1;
+}
+
+.category-title {
+  @apply text-sm font-medium text-gray-900;
+}
+
+.category-description {
+  @apply text-sm text-gray-600 mt-1;
+}
+
+.category-meta {
+  @apply flex items-center space-x-4 mt-2 text-xs text-gray-500;
+}
+
+.category-actions {
+  @apply flex items-center space-x-2;
+}
+
+.action-button {
+  @apply inline-flex items-center p-2 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-md transition-colors duration-150;
+}
+
+.action-button.danger {
+  @apply hover:text-red-600 focus:ring-red-500;
+}
+
+.empty-state {
+  @apply px-6 py-12 text-center;
+}
+
+.empty-icon {
+  @apply mx-auto h-12 w-12 text-gray-400;
+}
+
+.reorder-instructions {
+  @apply px-6 py-3 bg-gray-50 border-t border-gray-200;
+}
+
+.instruction-text {
+  @apply text-xs text-gray-600 flex items-center;
+}
+
+/* Drag and drop visual feedback */
+.category-item[draggable="true"]:hover {
+  @apply bg-gray-50;
+}
+
+.category-item.drag-over {
+  @apply bg-blue-50 border-blue-200;
+}
+
+/* Loading skeleton */
+.loading-skeleton {
+  @apply animate-pulse space-y-4;
+}
+
+.skeleton-item {
+  @apply flex items-center space-x-4;
+}
+
+.skeleton-icon {
+  @apply h-12 w-12 bg-gray-200 rounded-md;
+}
+
+.skeleton-content {
+  @apply flex-1;
+}
+
+.skeleton-title {
+  @apply h-4 bg-gray-200 rounded w-1/4 mb-2;
+}
+
+.skeleton-description {
+  @apply h-3 bg-gray-200 rounded w-1/2;
+}
+
+.skeleton-actions {
+  @apply h-8 w-20 bg-gray-200 rounded;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .category-item {
+    @apply px-4 py-3;
+  }
+  
+  .category-meta {
+    @apply flex-col items-start space-x-0 space-y-1;
+  }
+  
+  .category-actions {
+    @apply mt-2;
+  }
+}

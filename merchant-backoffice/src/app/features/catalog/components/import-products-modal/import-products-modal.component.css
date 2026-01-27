@@ -1,0 +1,127 @@
+/* Import Modal Styles */
+
+.modal-backdrop {
+  @apply fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50;
+}
+
+.modal-container {
+  @apply relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white;
+}
+
+.step-indicator {
+  @apply flex items-center;
+}
+
+.step-circle {
+  @apply flex items-center justify-center w-8 h-8 rounded-full border-2 text-xs font-medium transition-colors duration-200;
+}
+
+.step-circle.active {
+  @apply bg-blue-600 text-white border-blue-600;
+}
+
+.step-circle.completed {
+  @apply bg-green-600 text-white border-green-600;
+}
+
+.step-circle.inactive {
+  @apply bg-gray-100 text-gray-600 border-gray-300;
+}
+
+.step-connector {
+  @apply flex-1 h-px bg-gray-300 mx-4;
+}
+
+.upload-area {
+  @apply border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors duration-200;
+}
+
+.upload-area.drag-over {
+  @apply border-blue-500 bg-blue-50;
+}
+
+.file-info {
+  @apply flex items-center justify-center space-x-2;
+}
+
+.success-icon {
+  @apply h-8 w-8 text-green-500;
+}
+
+.info-box {
+  @apply bg-blue-50 border border-blue-200 rounded-md p-4;
+}
+
+.info-box.success {
+  @apply bg-green-50 border-green-200;
+}
+
+.info-box.error {
+  @apply bg-red-50 border-red-200;
+}
+
+.loading-spinner {
+  @apply animate-spin h-8 w-8 text-blue-600;
+}
+
+.progress-container {
+  @apply text-center py-8;
+}
+
+.progress-icon {
+  @apply inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4;
+}
+
+.results-container {
+  @apply space-y-4;
+}
+
+.results-header {
+  @apply text-center;
+}
+
+.results-icon {
+  @apply inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4;
+}
+
+.error-list {
+  @apply list-disc list-inside space-y-1;
+}
+
+/* Animation for modal entrance */
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-container {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+/* File upload hover effects */
+.upload-area:hover {
+  @apply border-gray-400;
+}
+
+.upload-area.drag-over {
+  @apply border-blue-500 bg-blue-50;
+}
+
+/* Button styles */
+.btn-primary {
+  @apply px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150;
+}
+
+.btn-link {
+  @apply font-medium text-blue-600 hover:text-blue-500 transition-colors duration-150;
+}

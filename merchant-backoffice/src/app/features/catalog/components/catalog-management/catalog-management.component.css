@@ -1,0 +1,80 @@
+/* Catalog Management Styles */
+
+.catalog-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-pointer;
+}
+
+.catalog-card:hover {
+  @apply transform -translate-y-1;
+}
+
+.catalog-card.selected {
+  @apply ring-2 ring-blue-500 shadow-md;
+}
+
+.status-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-active {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-inactive {
+  @apply bg-gray-100 text-gray-800;
+}
+
+.status-draft {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.dropdown-menu {
+  @apply absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-10;
+}
+
+.dropdown-item {
+  @apply block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150;
+}
+
+.dropdown-item.danger {
+  @apply text-red-700 hover:bg-red-50;
+}
+
+.stats-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+}
+
+.stats-icon {
+  @apply h-8 w-8 rounded-md flex items-center justify-center;
+}
+
+.stats-icon.blue {
+  @apply bg-blue-100;
+}
+
+.stats-icon.green {
+  @apply bg-green-100;
+}
+
+.stats-icon.yellow {
+  @apply bg-yellow-100;
+}
+
+.empty-state {
+  @apply text-center py-12;
+}
+
+.loading-skeleton {
+  @apply animate-pulse bg-gray-200 rounded;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .catalog-card {
+    @apply mb-4;
+  }
+  
+  .stats-card {
+    @apply p-4;
+  }
+}
