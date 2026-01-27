@@ -30,6 +30,14 @@ export const routes: Routes = [
     }
   },
   {
+    path: 'orders',
+    loadChildren: () => import('./features/orders/orders.module').then(m => m.OrdersModule),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { 
+      roles: [UserRole.MERCHANT, UserRole.ADMIN]
+    }
+  },
+  {
     path: 'unauthorized',
     loadComponent: () => import('./shared/components/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent)
   },
