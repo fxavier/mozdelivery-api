@@ -12,6 +12,8 @@ import { authReducer } from './core/store/auth/auth.reducer';
 import { AuthEffects } from './core/store/auth/auth.effects';
 import { dashboardReducer } from './features/dashboard/store/dashboard.reducer';
 import { DashboardEffects } from './features/dashboard/store/dashboard.effects';
+import { catalogReducer } from './features/catalog/store/catalog.reducer';
+import { CatalogEffects } from './features/catalog/store/catalog.effects';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { TenantInterceptor } from './core/interceptors/tenant.interceptor';
 import { environment } from '../environments/environment';
@@ -27,11 +29,13 @@ export const appConfig: ApplicationConfig = {
     // NgRx Store Configuration
     provideStore({
       auth: authReducer,
-      dashboard: dashboardReducer
+      dashboard: dashboardReducer,
+      catalog: catalogReducer
     }),
     provideEffects([
       AuthEffects,
-      DashboardEffects
+      DashboardEffects,
+      CatalogEffects
     ]),
     provideRouterStore(),
     

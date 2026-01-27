@@ -1,0 +1,66 @@
+/* Product Management Styles - Optimized */
+
+.product-table {
+  @apply min-w-full divide-y divide-gray-200;
+}
+
+.table-header {
+  @apply bg-gray-50;
+}
+
+.table-row {
+  @apply hover:bg-gray-50 transition-colors duration-150;
+}
+
+.product-image {
+  @apply h-16 w-16 rounded-md object-cover;
+}
+
+.product-image-placeholder {
+  @apply h-16 w-16 bg-gray-200 rounded-md flex items-center justify-center;
+}
+
+.availability-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.availability-available {
+  @apply bg-green-100 text-green-800;
+}
+
+.availability-out-of-stock {
+  @apply bg-red-100 text-red-800;
+}
+
+.availability-discontinued {
+  @apply bg-gray-100 text-gray-800;
+}
+
+.action-button {
+  @apply text-blue-600 hover:text-blue-900 transition-colors duration-150 opacity-70;
+}
+
+.action-button.danger {
+  @apply text-red-600 hover:text-red-900;
+}
+
+.table-row:hover .action-button {
+  @apply opacity-100;
+}
+
+.checkbox {
+  @apply h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded;
+}
+
+.empty-state {
+  @apply px-6 py-12 text-center;
+}
+
+.loading-skeleton {
+  @apply animate-pulse space-y-4;
+}
+
+@media (max-width: 768px) {
+  .product-table { @apply text-sm; }
+  .product-image, .product-image-placeholder { @apply h-12 w-12; }
+}

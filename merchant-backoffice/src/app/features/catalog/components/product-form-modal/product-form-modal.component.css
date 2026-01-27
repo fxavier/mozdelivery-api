@@ -1,0 +1,68 @@
+/* Product Form Modal Styles - Optimized */
+
+.modal-backdrop {
+  @apply fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50;
+}
+
+.modal-container {
+  @apply relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+.form-input, .form-textarea, .form-select {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-150;
+}
+
+.form-input.error {
+  @apply border-red-500 focus:ring-red-500 focus:border-red-500;
+}
+
+.form-checkbox {
+  @apply h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded;
+}
+
+.image-upload-area {
+  @apply border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors duration-200;
+}
+
+.image-grid {
+  @apply mt-4 grid grid-cols-2 gap-2;
+}
+
+.image-item {
+  @apply relative;
+}
+
+.image-item:hover .image-remove-button {
+  @apply opacity-100;
+}
+
+.image-preview {
+  @apply h-20 w-full object-cover rounded-md;
+}
+
+.image-remove-button {
+  @apply absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 transition-opacity duration-200;
+}
+
+.stock-section {
+  @apply border border-gray-200 rounded-md p-4;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150;
+}
+
+.btn-primary {
+  @apply px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150;
+}
+
+@keyframes modalSlideIn {
+  from { opacity: 0; transform: translateY(-50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .modal-container { @apply max-w-full mx-4; }
+  .image-grid { @apply grid-cols-1; }
+}
