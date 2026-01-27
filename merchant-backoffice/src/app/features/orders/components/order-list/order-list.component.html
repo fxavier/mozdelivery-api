@@ -1,0 +1,364 @@
+<div class="order-list-container">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Orders</h1>
+      <p class="text-gray-600 mt-1">Manage your orders and track their status</p>
+    </div>
+    
+    <div class="flex space-x-3">
+      <!-- Auto Refresh Toggle -->
+      <button
+        (click)="toggleAutoRefresh()"
+        [class]="(autoRefreshEnabled$ | async) ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'"
+        class="px-4 py-2 text-white rounded-lg transition-colors duration-200 flex items-center space-x-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        <span>{{ (autoRefreshEnabled$ | async) ? 'Auto Refresh On' : 'Auto Refresh Off' }}</span>
+      </button>
+
+      <!-- Refresh Button -->
+      <button
+        (click)="refreshOrders()"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        <span>Refresh</span>
+      </button>
+
+      <!-- Export Button -->
+      <button
+        (click)="exportOrders()"
+        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <span>Export</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Last Updated Info -->
+  <div *ngIf="lastUpdated$ | async as lastUpdated" class="mb-4 text-sm text-gray-500">
+    Last updated: {{ lastUpdated | date:'medium' }}
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <button
+        (click)="toggleFilters()"
+        class="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
+        </svg>
+        <span class="font-medium">Filters</span>
+        <svg 
+          [class.rotate-180]="showFilters"
+          class="w-4 h-4 transition-transform duration-200" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div *ngIf="showFilters" class="px-6 py-4">
+      <form [formGroup]="filterForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Search -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+          <input
+            type="text"
+            formControlName="searchTerm"
+            placeholder="Order ID, customer name, address..."
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <!-- Status Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+          <select
+            formControlName="status"
+            multiple
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option *ngFor="let status of OrderStatus | keyvalue" [value]="status.value">
+              {{ getStatusDisplayName(status.value) }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Payment Method Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+          <select
+            formControlName="paymentMethod"
+            multiple
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option *ngFor="let method of PaymentMethod | keyvalue" [value]="method.value">
+              {{ getPaymentMethodDisplayName(method.value) }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Date Range -->
+        <div formGroupName="dateRange">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+          <div class="flex space-x-2">
+            <input
+              type="date"
+              formControlName="startDate"
+              class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <input
+              type="date"
+              formControlName="endDate"
+              class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+
+        <!-- Amount Range -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Amount Range</label>
+          <div class="flex space-x-2">
+            <input
+              type="number"
+              formControlName="minAmount"
+              placeholder="Min"
+              class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <input
+              type="number"
+              formControlName="maxAmount"
+              placeholder="Max"
+              class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+
+        <!-- Clear Filters Button -->
+        <div class="flex items-end">
+          <button
+            type="button"
+            (click)="clearFilters()"
+            class="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200">
+            Clear Filters
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bulk Actions -->
+  <div *ngIf="isSomeSelected$ | async" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <span class="text-blue-800 font-medium">
+          {{ (selectedOrderIds$ | async)?.length }} order(s) selected
+        </span>
+        <button
+          (click)="toggleBulkActions()"
+          class="text-blue-600 hover:text-blue-800 font-medium">
+          {{ showBulkActions ? 'Hide' : 'Show' }} Bulk Actions
+        </button>
+      </div>
+      <button
+        (click)="onSelectAll(false)"
+        class="text-blue-600 hover:text-blue-800 font-medium">
+        Clear Selection
+      </button>
+    </div>
+
+    <div *ngIf="showBulkActions" class="mt-4 flex flex-wrap gap-2">
+      <button
+        (click)="bulkUpdateStatus('PREPARING')"
+        class="px-3 py-1 bg-orange-600 text-white rounded text-sm hover:bg-orange-700">
+        Mark as Preparing
+      </button>
+      <button
+        (click)="bulkUpdateStatus('READY_FOR_PICKUP')"
+        class="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700">
+        Mark as Ready
+      </button>
+      <button
+        (click)="bulkUpdateStatus('CANCELLED')"
+        class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700">
+        Cancel Orders
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading$ | async" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <span class="ml-3 text-gray-600">Loading orders...</span>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error$ | async as error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+    <div class="flex items-center">
+      <svg class="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span class="text-red-800">{{ error }}</span>
+    </div>
+  </div>
+
+  <!-- Orders Table -->
+  <div *ngIf="!(isLoading$ | async)" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left">
+              <input
+                type="checkbox"
+                [checked]="isAllSelected$ | async"
+                [indeterminate]="(isSomeSelected$ | async) && !(isAllSelected$ | async)"
+                (change)="onSelectAll($event.target.checked)"
+                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Order
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Customer
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Status
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Payment
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Total
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Date
+            </th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr 
+            *ngFor="let order of orders$ | async; trackBy: trackByOrderId"
+            class="hover:bg-gray-50 transition-colors duration-150">
+            <td class="px-6 py-4">
+              <input
+                type="checkbox"
+                [checked]="(selectedOrderIds$ | async)?.includes(order.id)"
+                (change)="onOrderSelect(order.id, $event.target.checked)"
+                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+            </td>
+            <td class="px-6 py-4">
+              <div class="text-sm font-medium text-gray-900">{{ order.id }}</div>
+              <div class="text-sm text-gray-500">{{ order.items.length }} item(s)</div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="text-sm font-medium text-gray-900">{{ getCustomerName(order) }}</div>
+              <div class="text-sm text-gray-500">{{ order.deliveryAddress.city }}</div>
+            </td>
+            <td class="px-6 py-4">
+              <span [class]="getStatusClass(order.status)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                {{ getStatusDisplayName(order.status) }}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <div class="text-sm text-gray-900">{{ getPaymentMethodDisplayName(order.paymentInfo.method) }}</div>
+              <div class="text-sm text-gray-500">{{ order.paymentInfo.status }}</div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="text-sm font-medium text-gray-900">
+                {{ formatCurrency(order.totalAmount, order.currency) }}
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="text-sm text-gray-900">{{ order.createdAt | date:'short' }}</div>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex justify-end space-x-2">
+                <button
+                  (click)="viewOrder(order.id)"
+                  class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                  View
+                </button>
+                <button
+                  *ngIf="order.status === OrderStatus.PAYMENT_CONFIRMED"
+                  (click)="updateOrderStatus(order.id, OrderStatus.PREPARING)"
+                  class="text-orange-600 hover:text-orange-800 text-sm font-medium">
+                  Start Preparing
+                </button>
+                <button
+                  *ngIf="order.status === OrderStatus.PREPARING"
+                  (click)="updateOrderStatus(order.id, OrderStatus.READY_FOR_PICKUP)"
+                  class="text-purple-600 hover:text-purple-800 text-sm font-medium">
+                  Mark Ready
+                </button>
+                <button
+                  *ngIf="order.status !== OrderStatus.DELIVERED && order.status !== OrderStatus.CANCELLED"
+                  (click)="cancelOrder(order.id, 'Cancelled by merchant')"
+                  class="text-red-600 hover:text-red-800 text-sm font-medium">
+                  Cancel
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="(orders$ | async)?.length === 0" class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No orders found</h3>
+      <p class="mt-1 text-sm text-gray-500">No orders match your current filters.</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="paginationInfo$ | async as pagination" class="mt-6 flex items-center justify-between">
+    <div class="text-sm text-gray-700">
+      Showing {{ (pagination.currentPage * pagination.pageSize) + 1 }} to 
+      {{ Math.min((pagination.currentPage + 1) * pagination.pageSize, pagination.totalElements) }} 
+      of {{ pagination.totalElements }} results
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <!-- Page Size Selector -->
+      <select
+        [value]="pagination.pageSize"
+        (change)="onPageSizeChange($event)"
+        class="px-3 py-1 border border-gray-300 rounded text-sm">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+
+      <!-- Pagination Controls -->
+      <div class="flex space-x-1">
+        <button
+          [disabled]="!pagination.hasPrevious"
+          (click)="onPageChange(pagination.currentPage - 1)"
+          class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+          Previous
+        </button>
+        
+        <span class="px-3 py-1 text-sm text-gray-700">
+          Page {{ pagination.currentPage + 1 }} of {{ pagination.totalPages }}
+        </span>
+        
+        <button
+          [disabled]="!pagination.hasNext"
+          (click)="onPageChange(pagination.currentPage + 1)"
+          class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

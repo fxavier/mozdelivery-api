@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -24,6 +25,7 @@ import { NotificationsComponent } from './notifications/notifications.component'
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     OrderQueueComponent,
     NotificationsComponent
   ],

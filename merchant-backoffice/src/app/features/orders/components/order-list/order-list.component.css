@@ -1,0 +1,101 @@
+.order-list-container {
+  @apply p-6;
+}
+
+/* Custom scrollbar for table */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
+}
+
+/* Table row hover effects */
+tbody tr:hover {
+  @apply bg-gray-50;
+}
+
+/* Status badge animations */
+.status-badge {
+  @apply transition-all duration-200;
+}
+
+/* Filter form animations */
+.filter-form {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* Bulk actions slide animation */
+.bulk-actions {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  @apply animate-spin;
+}
+
+/* Checkbox styling */
+input[type="checkbox"]:indeterminate {
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M5.707 7.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L7 8.586 5.707 7.293z'/%3e%3c/svg%3e");
+  border-color: transparent;
+  background-color: currentColor;
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+  .order-list-container {
+    @apply p-4;
+  }
+  
+  table {
+    font-size: 0.875rem;
+  }
+  
+  th, td {
+    @apply px-3 py-2;
+  }
+}
+
+/* Print styles */
+@media print {
+  .order-list-container {
+    @apply p-0;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  table {
+    @apply text-xs;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .status-badge {
+    @apply border border-current;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
