@@ -10,6 +10,8 @@ import { provideRouterStore } from '@ngrx/router-store';
 import { routes } from './app.routes';
 import { authReducer } from './core/store/auth/auth.reducer';
 import { AuthEffects } from './core/store/auth/auth.effects';
+import { dashboardReducer } from './features/dashboard/store/dashboard.reducer';
+import { DashboardEffects } from './features/dashboard/store/dashboard.effects';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { TenantInterceptor } from './core/interceptors/tenant.interceptor';
 import { environment } from '../environments/environment';
@@ -24,13 +26,17 @@ export const appConfig: ApplicationConfig = {
     
     // NgRx Store Configuration
     provideStore({
-      auth: authReducer
+      auth: authReducer,
+      dashboard: dashboardReducer
     }),
-    provideEffects([AuthEffects]),
+    provideEffects([
+      AuthEffects,
+      DashboardEffects
+    ]),
     provideRouterStore(),
     
     // Store DevTools (only in development)
-    ...(environment.features.enableDevTools ? [
+    ...(environment.enableDevTools ? [
       provideStoreDevtools({
         maxAge: 25,
         logOnly: environment.production,
