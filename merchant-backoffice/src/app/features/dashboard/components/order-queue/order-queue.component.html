@@ -1,0 +1,158 @@
+<div class="bg-white rounded-lg shadow-sm border border-gray-200">
+  <!-- Header -->
+  <div class="px-6 py-4 border-b border-gray-200">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-medium text-gray-900">Order Queue</h3>
+      <div class="flex items-center space-x-2">
+        <button
+          (click)="onRefreshOrders()"
+          class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          [disabled]="loading$ | async"
+        >
+          <svg 
+            class="h-4 w-4 mr-1.5" 
+            [class.animate-spin]="loading$ | async"
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading$ | async" class="px-6 py-8">
+    <div class="animate-pulse space-y-4">
+      <div *ngFor="let item of [1,2,3]" class="flex items-center space-x-4">
+        <div class="h-12 w-12 bg-gray-200 rounded-lg"></div>
+        <div class="flex-1 space-y-2">
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+        </div>
+        <div class="h-8 w-20 bg-gray-200 rounded"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error$ | async as error" class="px-6 py-8">
+    <div class="text-center">
+      <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">Error loading orders</h3>
+      <p class="mt-1 text-sm text-gray-500">{{ error }}</p>
+      <div class="mt-6">
+        <button
+          (click)="onRefreshOrders()"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Try again
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders List -->
+  <div *ngIf="orders$ | async as orders" class="divide-y divide-gray-200">
+    <!-- Empty State -->
+    <div *ngIf="orders.length === 0 && !(loading$ | async)" class="px-6 py-8">
+      <div class="text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No orders</h3>
+        <p class="mt-1 text-sm text-gray-500">You don't have any orders at the moment.</p>
+      </div>
+    </div>
+
+    <!-- Order Items -->
+    <div *ngFor="let order of orders; trackBy: trackByOrderId" class="px-6 py-4 hover:bg-gray-50">
+      <div class="flex items-center justify-between">
+        <!-- Order Info -->
+        <div class="flex items-center space-x-4">
+          <!-- Order Icon -->
+          <div class="flex-shrink-0">
+            <div class="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Order Details -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center space-x-2">
+              <p class="text-sm font-medium text-gray-900 truncate">
+                Order #{{ order.id }}
+              </p>
+              <span 
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                [class]="getStatusColor(order.status)"
+              >
+                {{ getStatusDisplayName(order.status) }}
+              </span>
+            </div>
+            <div class="mt-1 flex items-center space-x-4 text-sm text-gray-500">
+              <span>{{ order.customerName }}</span>
+              <span>•</span>
+              <span>{{ formatCurrency(order.total, order.currency) }}</span>
+              <span>•</span>
+              <span>{{ getTimeAgo(order.createdAt) }}</span>
+            </div>
+            <div class="mt-1 text-xs text-gray-400">
+              {{ order.items.length }} item(s) - {{ formatTime(order.createdAt) }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center space-x-2">
+          <!-- Status Update Button -->
+          <button
+            *ngIf="canUpdateStatus(order.status)"
+            (click)="onUpdateOrderStatus(order.id, getNextStatus(order.status)!)"
+            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            {{ getStatusDisplayName(getNextStatus(order.status)!) }}
+          </button>
+
+          <!-- View Details Button -->
+          <button
+            class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            View
+          </button>
+        </div>
+      </div>
+
+      <!-- Order Items Preview -->
+      <div class="mt-3 ml-14">
+        <div class="text-xs text-gray-500">
+          <span *ngFor="let item of order.items; let last = last">
+            {{ item.quantity }}x {{ item.productName }}<span *ngIf="!last">, </span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="px-6 py-3 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+    <div class="flex items-center justify-between text-sm text-gray-500">
+      <span>Last updated: {{ (orders$ | async)?.length ? 'Just now' : 'Never' }}</span>
+      <span>Auto-refresh: 30s</span>
+    </div>
+  </div>
+</div>

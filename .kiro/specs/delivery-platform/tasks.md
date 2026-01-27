@@ -201,7 +201,7 @@ This implementation plan breaks down the multi-merchant delivery marketplace int
     - Implement merchant authentication
     - _Requirements: 12_
 
-  - [ ] 9.2 Implement Merchant Dashboard
+  - [x] 9.2 Implement Merchant Dashboard
     - Create merchant overview dashboard
     - Add order queue and status management
     - Implement real-time notifications

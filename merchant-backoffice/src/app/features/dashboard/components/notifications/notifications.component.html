@@ -1,0 +1,234 @@
+<div class="bg-white rounded-lg shadow-sm border border-gray-200">
+  <!-- Header -->
+  <div class="px-6 py-4 border-b border-gray-200">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-medium text-gray-900">Notifications</h3>
+      <div class="flex items-center space-x-2">
+        <button
+          (click)="onToggleShowAll()"
+          class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+        >
+          {{ showAll ? 'Show Unread' : 'Show All' }}
+        </button>
+        <button
+          (click)="onRefreshNotifications()"
+          class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          [disabled]="loading$ | async"
+        >
+          <svg 
+            class="h-4 w-4 mr-1.5" 
+            [class.animate-spin]="loading$ | async"
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading$ | async" class="px-6 py-8">
+    <div class="animate-pulse space-y-4">
+      <div *ngFor="let item of [1,2,3]" class="flex items-start space-x-4">
+        <div class="h-10 w-10 bg-gray-200 rounded-lg"></div>
+        <div class="flex-1 space-y-2">
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+        </div>
+        <div class="h-6 w-6 bg-gray-200 rounded-full"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error$ | async as error" class="px-6 py-8">
+    <div class="text-center">
+      <svg class="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">Error loading notifications</h3>
+      <p class="mt-1 text-sm text-gray-500">{{ error }}</p>
+      <div class="mt-6">
+        <button
+          (click)="onRefreshNotifications()"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Try again
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications List -->
+  <div class="divide-y divide-gray-200">
+    <ng-container *ngIf="showAll; else unreadOnly">
+      <ng-container *ngIf="notifications$ | async as notifications">
+        <!-- Empty State -->
+        <div *ngIf="notifications.length === 0 && !(loading$ | async)" class="px-6 py-8">
+          <div class="text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4 19h6v-2H4v2zM4 15h8v-2H4v2zM4 11h8V9H4v2z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No notifications</h3>
+            <p class="mt-1 text-sm text-gray-500">You don't have any notifications yet.</p>
+          </div>
+        </div>
+
+        <!-- Notification Items -->
+        <div 
+          *ngFor="let notification of notifications; trackBy: trackByNotificationId" 
+          class="px-6 py-4 hover:bg-gray-50 transition-colors duration-200"
+          [class.bg-blue-50]="!notification.read"
+        >
+          <div class="flex items-start space-x-4">
+            <!-- Notification Icon -->
+            <div class="flex-shrink-0">
+              <div 
+                class="h-10 w-10 rounded-lg flex items-center justify-center"
+                [class]="getNotificationColor(notification.type)"
+              >
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getNotificationIcon(notification.type)"></path>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Notification Content -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ notification.title }}
+                  </p>
+                  <p class="mt-1 text-sm text-gray-600">
+                    {{ notification.message }}
+                  </p>
+                  <p class="mt-1 text-xs text-gray-400">
+                    {{ getTimeAgo(notification.timestamp) }}
+                  </p>
+                </div>
+
+                <!-- Unread Indicator & Actions -->
+                <div class="flex items-center space-x-2 ml-4">
+                  <div 
+                    *ngIf="!notification.read" 
+                    class="h-2 w-2 bg-blue-500 rounded-full"
+                    title="Unread"
+                  ></div>
+                  
+                  <button
+                    *ngIf="!notification.read"
+                    (click)="onMarkAsRead(notification.id)"
+                    class="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    Mark as read
+                  </button>
+                </div>
+              </div>
+
+              <!-- Action Button -->
+              <div *ngIf="notification.actionUrl" class="mt-3">
+                <button
+                  class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                  </svg>
+                  View Details
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <!-- Unread Only Template -->
+    <ng-template #unreadOnly>
+      <ng-container *ngIf="unreadNotifications$ | async as unreadNotifications">
+        <!-- Empty State -->
+        <div *ngIf="unreadNotifications.length === 0 && !(loading$ | async)" class="px-6 py-8">
+          <div class="text-center">
+            <svg class="mx-auto h-12 w-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">All caught up!</h3>
+            <p class="mt-1 text-sm text-gray-500">You have no unread notifications.</p>
+          </div>
+        </div>
+
+        <!-- Unread Notification Items -->
+        <div 
+          *ngFor="let notification of unreadNotifications; trackBy: trackByNotificationId" 
+          class="px-6 py-4 bg-blue-50 hover:bg-blue-100 transition-colors duration-200"
+        >
+          <div class="flex items-start space-x-4">
+            <!-- Notification Icon -->
+            <div class="flex-shrink-0">
+              <div 
+                class="h-10 w-10 rounded-lg flex items-center justify-center"
+                [class]="getNotificationColor(notification.type)"
+              >
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getNotificationIcon(notification.type)"></path>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Notification Content -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ notification.title }}
+                  </p>
+                  <p class="mt-1 text-sm text-gray-600">
+                    {{ notification.message }}
+                  </p>
+                  <p class="mt-1 text-xs text-gray-400">
+                    {{ getTimeAgo(notification.timestamp) }}
+                  </p>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center space-x-2 ml-4">
+                  <div class="h-2 w-2 bg-blue-500 rounded-full" title="Unread"></div>
+                  <button
+                    (click)="onMarkAsRead(notification.id)"
+                    class="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    Mark as read
+                  </button>
+                </div>
+              </div>
+
+              <!-- Action Button -->
+              <div *ngIf="notification.actionUrl" class="mt-3">
+                <button
+                  class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                  </svg>
+                  View Details
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-template>
+  </div>
+
+  <!-- Footer -->
+  <div class="px-6 py-3 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+    <div class="flex items-center justify-between text-sm text-gray-500">
+      <span>Real-time notifications enabled</span>
+      <span>Auto-refresh: 30s</span>
+    </div>
+  </div>
+</div>

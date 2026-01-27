@@ -1,0 +1,99 @@
+/* Order Queue Component Styles */
+
+.order-item {
+  @apply transition-colors duration-200;
+}
+
+.order-item:hover {
+  @apply bg-gray-50;
+}
+
+.status-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-badge.new {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-badge.processing {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.status-badge.ready {
+  @apply bg-purple-100 text-purple-800;
+}
+
+.status-badge.completed {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-badge.cancelled {
+  @apply bg-red-100 text-red-800;
+}
+
+.action-button {
+  @apply inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors duration-200;
+}
+
+.action-button.primary {
+  @apply border border-transparent text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+}
+
+.action-button.secondary {
+  @apply border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+}
+
+.order-icon {
+  @apply h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center;
+}
+
+.order-icon svg {
+  @apply h-5 w-5 text-blue-600;
+}
+
+/* Loading animation */
+.loading-skeleton {
+  @apply animate-pulse;
+}
+
+.loading-skeleton .skeleton-item {
+  @apply bg-gray-200 rounded;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .order-item {
+    @apply px-4 py-3;
+  }
+  
+  .order-details {
+    @apply flex-col space-y-2;
+  }
+  
+  .order-actions {
+    @apply flex-col space-y-1 space-x-0;
+  }
+}
+
+/* Animation for status updates */
+.status-updating {
+  @apply opacity-50 pointer-events-none;
+}
+
+.status-updated {
+  @apply animate-pulse;
+}
+
+/* Priority indicators */
+.order-priority-high {
+  @apply border-l-4 border-red-500;
+}
+
+.order-priority-medium {
+  @apply border-l-4 border-yellow-500;
+}
+
+.order-priority-low {
+  @apply border-l-4 border-green-500;
+}

@@ -1,0 +1,128 @@
+/* Notifications Component Styles */
+
+.notification-item {
+  @apply transition-colors duration-200;
+}
+
+.notification-item:hover {
+  @apply bg-gray-50;
+}
+
+.notification-item.unread {
+  @apply bg-blue-50;
+}
+
+.notification-item.unread:hover {
+  @apply bg-blue-100;
+}
+
+.notification-icon {
+  @apply h-10 w-10 rounded-lg flex items-center justify-center;
+}
+
+.notification-icon.order {
+  @apply bg-blue-100 text-blue-600;
+}
+
+.notification-icon.payment {
+  @apply bg-green-100 text-green-600;
+}
+
+.notification-icon.alert {
+  @apply bg-yellow-100 text-yellow-600;
+}
+
+.notification-icon.system {
+  @apply bg-purple-100 text-purple-600;
+}
+
+.notification-icon.default {
+  @apply bg-gray-100 text-gray-600;
+}
+
+.unread-indicator {
+  @apply h-2 w-2 bg-blue-500 rounded-full;
+}
+
+.notification-action {
+  @apply inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md transition-colors duration-200;
+}
+
+.notification-action.primary {
+  @apply text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+}
+
+.mark-read-button {
+  @apply text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200;
+}
+
+/* Loading animation */
+.loading-skeleton {
+  @apply animate-pulse;
+}
+
+.loading-skeleton .skeleton-item {
+  @apply bg-gray-200 rounded;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .notification-item {
+    @apply px-4 py-3;
+  }
+  
+  .notification-content {
+    @apply flex-col space-y-2;
+  }
+  
+  .notification-actions {
+    @apply flex-col space-y-1 space-x-0;
+  }
+}
+
+/* Animation for new notifications */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.notification-new {
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* Notification type specific styles */
+.notification-urgent {
+  @apply border-l-4 border-red-500;
+}
+
+.notification-info {
+  @apply border-l-4 border-blue-500;
+}
+
+.notification-success {
+  @apply border-l-4 border-green-500;
+}
+
+.notification-warning {
+  @apply border-l-4 border-yellow-500;
+}
+
+/* Hover effects */
+.notification-hover-effect {
+  @apply transform transition-transform duration-200;
+}
+
+.notification-hover-effect:hover {
+  @apply scale-105;
+}
+
+/* Focus states */
+.notification-focusable:focus {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}

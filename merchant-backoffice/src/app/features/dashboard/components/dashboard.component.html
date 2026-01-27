@@ -3,17 +3,63 @@
   <header class="bg-white shadow">
     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-900">
-          Dashboard
-        </h1>
-        <div *ngIf="currentUser$ | async as user" class="flex items-center space-x-4">
-          <div class="text-sm text-gray-600">
-            Welcome back, <span class="font-medium text-gray-900">{{ user.name }}</span>
-          </div>
-          <div class="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
-            <span class="text-sm font-medium text-blue-600">
-              {{ user.name.charAt(0).toUpperCase() }}
+        <div class="flex items-center space-x-4">
+          <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <!-- Real-time Status Indicator -->
+          <div class="flex items-center space-x-2">
+            <div 
+              class="h-2 w-2 rounded-full"
+              [class]="(realTimeUpdatesActive$ | async) ? 'bg-green-400' : 'bg-gray-400'"
+            ></div>
+            <span class="text-sm text-gray-500">
+              {{ (realTimeUpdatesActive$ | async) ? 'Live' : 'Offline' }}
             </span>
+          </div>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <!-- Refresh Button -->
+          <button
+            (click)="onRefreshDashboard()"
+            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            [disabled]="loading$ | async"
+          >
+            <svg 
+              class="h-4 w-4 mr-2" 
+              [class.animate-spin]="loading$ | async"
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Refresh
+          </button>
+
+          <!-- User Info -->
+          <div *ngIf="currentUser$ | async as user" class="flex items-center space-x-4">
+            <!-- Notification Badge -->
+            <div class="relative">
+              <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4 19h6v-2H4v2zM4 15h8v-2H4v2zM4 11h8V9H4v2z"></path>
+              </svg>
+              <span 
+                *ngIf="(unreadNotificationCount$ | async) as count; else noNotifications"
+                class="absolute -top-2 -right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full"
+              >
+                {{ count > 99 ? '99+' : count }}
+              </span>
+              <ng-template #noNotifications></ng-template>
+            </div>
+
+            <div class="text-sm text-gray-600">
+              Welcome back, <span class="font-medium text-gray-900">{{ user.name }}</span>
+            </div>
+            <div class="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
+              <span class="text-sm font-medium text-blue-600">
+                {{ user.name.charAt(0).toUpperCase() }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -23,10 +69,25 @@
   <!-- Main Content -->
   <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
+      <!-- Loading State for Initial Load -->
+      <div *ngIf="loading$ | async" class="animate-pulse">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div *ngFor="let item of [1,2,3,4]" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center">
+              <div class="h-8 w-8 bg-gray-200 rounded-md"></div>
+              <div class="ml-4 flex-1">
+                <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div class="h-6 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Stats Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div *ngIf="dashboardStats$ | async as stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- Total Orders -->
-        <div class="card">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="h-8 w-8 bg-blue-100 rounded-md flex items-center justify-center">
@@ -37,13 +98,13 @@
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-600">Total Orders</p>
-              <p class="text-2xl font-semibold text-gray-900">1,234</p>
+              <p class="text-2xl font-semibold text-gray-900">{{ formatNumber(stats.totalOrders) }}</p>
             </div>
           </div>
         </div>
 
         <!-- Revenue -->
-        <div class="card">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="h-8 w-8 bg-green-100 rounded-md flex items-center justify-center">
@@ -54,13 +115,13 @@
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-600">Revenue</p>
-              <p class="text-2xl font-semibold text-gray-900">$45,678</p>
+              <p class="text-2xl font-semibold text-gray-900">{{ formatCurrency(stats.revenue) }}</p>
             </div>
           </div>
         </div>
 
         <!-- Active Products -->
-        <div class="card">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="h-8 w-8 bg-yellow-100 rounded-md flex items-center justify-center">
@@ -71,13 +132,13 @@
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-600">Active Products</p>
-              <p class="text-2xl font-semibold text-gray-900">89</p>
+              <p class="text-2xl font-semibold text-gray-900">{{ formatNumber(stats.activeProducts) }}</p>
             </div>
           </div>
         </div>
 
         <!-- Pending Orders -->
-        <div class="card">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="h-8 w-8 bg-red-100 rounded-md flex items-center justify-center">
@@ -88,35 +149,35 @@
             </div>
             <div class="ml-4">
               <p class="text-sm font-medium text-gray-600">Pending Orders</p>
-              <p class="text-2xl font-semibold text-gray-900">23</p>
+              <p class="text-2xl font-semibold text-gray-900">{{ formatNumber(stats.pendingOrders) }}</p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Quick Actions -->
-      <div class="card mb-8">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button class="btn-primary flex items-center justify-center">
+          <button class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
             <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
             Add Product
           </button>
-          <button class="btn-secondary flex items-center justify-center">
+          <button class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
             <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
             View Orders
           </button>
-          <button class="btn-secondary flex items-center justify-center">
+          <button class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
             <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
             </svg>
             Analytics
           </button>
-          <button class="btn-secondary flex items-center justify-center">
+          <button class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
             <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -126,32 +187,25 @@
         </div>
       </div>
 
-      <!-- Recent Activity -->
-      <div class="card">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
-        <div class="space-y-4">
-          <div class="flex items-center space-x-3">
-            <div class="h-2 w-2 bg-green-400 rounded-full"></div>
-            <p class="text-sm text-gray-600">
-              <span class="font-medium">Order #1234</span> was completed
-            </p>
-            <span class="text-xs text-gray-400">2 minutes ago</span>
-          </div>
-          <div class="flex items-center space-x-3">
-            <div class="h-2 w-2 bg-blue-400 rounded-full"></div>
-            <p class="text-sm text-gray-600">
-              <span class="font-medium">New product</span> "Chicken Burger" was added
-            </p>
-            <span class="text-xs text-gray-400">15 minutes ago</span>
-          </div>
-          <div class="flex items-center space-x-3">
-            <div class="h-2 w-2 bg-yellow-400 rounded-full"></div>
-            <p class="text-sm text-gray-600">
-              <span class="font-medium">Order #1233</span> is pending approval
-            </p>
-            <span class="text-xs text-gray-400">1 hour ago</span>
-          </div>
+      <!-- Dashboard Content Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Order Queue (2/3 width) -->
+        <div class="lg:col-span-2">
+          <app-order-queue></app-order-queue>
         </div>
+
+        <!-- Notifications (1/3 width) -->
+        <div class="lg:col-span-1">
+          <app-notifications></app-notifications>
+        </div>
+      </div>
+
+      <!-- Footer Info -->
+      <div class="mt-8 text-center text-sm text-gray-500">
+        <p>
+          Last updated: {{ getLastUpdatedText(lastUpdated$ | async) }}
+          <span *ngIf="realTimeUpdatesActive$ | async" class="ml-2">• Real-time updates active</span>
+        </p>
       </div>
     </div>
   </main>
